@@ -1,9 +1,11 @@
 package application;
 	
+import java.io.IOException;
 import java.util.Random;
 
 import controller.DrawingToolGreedy;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -22,6 +24,8 @@ public class Main extends Application {
 	public static int PopulationSize = 100;
 	public static int RecombinationSize = PopulationSize / 2;
 	public static int MutationProbability = 15;
+	private Stage primaryStage;
+	private BorderPane rootLayout;
 	
 	
 	
@@ -29,19 +33,57 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			DrawingToolGreedy dt = new DrawingToolGreedy();
-			ScrollPane root = new ScrollPane();
-			AnchorPane canvasContainer = (AnchorPane) dt.initializeLayout();
-			root.getChildrenUnmodifiable().add(canvasContainer);
+			this.primaryStage = primaryStage;
+			this.primaryStage.setTitle("FireFighter");
+
+			initRootLayout();
+			showLayout();
+
 			
+
 			
-			
-			//BorderPane root = new BorderPane();
-			Scene scene = new Scene(root,800,600);
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-			primaryStage.setScene(scene);
-			primaryStage.show();
 		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void initRootLayout() {
+		try {
+			// Load fxml file for RootLayout
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(Main.class.getResource("RootLayout.fxml"));
+			rootLayout = (BorderPane) loader.load();
+
+			// Show Scene containing RootLayout
+			Scene scene = new Scene(rootLayout);
+			primaryStage.setScene(scene);
+
+			// Give the controller access to the main app.
+
+			primaryStage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		}
+	
+	
+	public void showLayout() {
+		try {
+			// Load fxml file for LineOverview
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(Main.class.getResource("LayoutNew.fxml"));
+			AnchorPane startScreen = (AnchorPane) loader.load();
+
+			// lineOerview in Center of RootLayout
+			rootLayout.setCenter(startScreen);
+
+			LayoutController controller = loader.getController();
+			controller.setMain(this);
+
+			
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
