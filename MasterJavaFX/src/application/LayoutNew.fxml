@@ -12,16 +12,20 @@
          <content>
             <Pane fx:id="drawPane" prefHeight="200.0" prefWidth="200.0" />
          </content></ScrollPane>
-      <HBox layoutY="578.0" spacing="30.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="578.0">
+      <HBox layoutX="10.0" layoutY="575.0" spacing="400.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
          <children>
-            <Label layoutY="578.0" text="Crew Number" />
-            <Label fx:id="CrewLabel" layoutX="38.0" layoutY="578.0" />
-            <Label layoutX="78.0" layoutY="578.0" text="Fitness" />
-            <Label fx:id="FitnessLabel" layoutX="117.0" layoutY="578.0" />
-            <Label layoutX="158.0" layoutY="578.0" text="Generation" />
-            <Label fx:id="GenerationLabel" layoutX="203.0" layoutY="578.0" />
+            <HBox layoutY="578.0" spacing="30.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="578.0">
+               <children>
+                  <Label layoutY="578.0" text="Crew Number" />
+                  <Label fx:id="CrewLabel" layoutX="38.0" layoutY="578.0" />
+                  <Label layoutX="78.0" layoutY="578.0" text="Fitness" />
+                  <Label fx:id="FitnessLabel" layoutX="117.0" layoutY="578.0" />
+                  <Label layoutX="158.0" layoutY="578.0" text="Generation" />
+                  <Label fx:id="GenerationLabel" layoutX="203.0" layoutY="578.0" />
+               </children>
+            </HBox>
+            <Button fx:id="StartButton" layoutX="254.0" layoutY="574.0" mnemonicParsing="false" onAction="#handleButton" text="Start" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="15.0" />
          </children>
       </HBox>
-      <Button fx:id="StartButton" layoutX="254.0" layoutY="574.0" mnemonicParsing="false" onAction="#handleButton" text="Start" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="15.0" />
    </children>
 </AnchorPane>

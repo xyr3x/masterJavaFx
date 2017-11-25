@@ -85,6 +85,8 @@ public class LayoutController {
 		 */
 		
 		drawCrew(shownCrew);
+		CrewLabel.setText(Integer.toString(shownCrew.getID()));
+		FitnessLabel.setText(Integer.toString(shownCrew.getFitness()));
 		
 
 	}
