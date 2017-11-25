@@ -1,10 +1,13 @@
 package application;
 
+import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
+import controller.EvolutionaryAlgo;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
@@ -12,12 +15,16 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import model.FireFighterCrew;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import model.*;
 
 public class LayoutController {
-	private Main main;	
-	
+	private Main main;
+	private EvolutionaryAlgo evAlgo;
+
 	@FXML
 	private Label FitnessLabel;
 	@FXML
@@ -30,481 +37,519 @@ public class LayoutController {
 	private ScrollPane scrollPane;
 	@FXML
 	private Canvas drawCanvas;
+	@FXML
+	private Pane drawPane;
+
+	private int rectangleSize = 8;
+	private int paneHeight = Main.GridLength * (rectangleSize + 1) - 1;
+	private int paneWidth = Main.GridLength * (rectangleSize + 1) - 1;
+	private int currentCrew = 0;
+
+	private List<Rectangle> grid = new ArrayList<Rectangle>();
 	
-	private int rectangleSize = 6;
-	private int canvasHeight = Main.GridLength * (rectangleSize + 1) - 1;
-	private int canvasWidth = Main.GridLength * (rectangleSize + 1) - 1;
-	
-	private Group root = new Group();
-	
-	
-	public void setMain(Main main){
+	public LayoutController(){
+		
+	}
+
+	public void setMain(Main main) {
 		this.main = main;
 	}
-	
-	
+
+	public void setEvAlgo(EvolutionaryAlgo evAlgo) {
+		this.evAlgo = evAlgo;
+	}
+
 	@FXML
 	private void handleButton(){
-		//initialize Container and DrawingCanvas				
-				drawCanvas.setHeight(canvasHeight);
-				drawCanvas.setWidth(canvasWidth);
-				
-				GraphicsContext gc = drawCanvas.getGraphicsContext2D();
-				//draw grid initially
-				initalizeDrawing(gc);
-				
-				
+		FireFighterCrew shownCrew = evAlgo.getPopulation().get(currentCrew);
+		
+		//TODO: Möchte initial machen
+		// initialize Container and DrawingCanvas
+		drawPane.setPrefHeight(paneHeight);
+		drawPane.setPrefWidth(paneWidth);
+		// draw grid initially
+		initalizeDrawing();
+		
+
+		/*
+		 * //testing FireFighterCrew crew = new FireFighterCrew(); // Crew
+		 * testen for (int i = 0; i < Main.CrewSize; i++) { FireFighter fighter
+		 * = new FireFighter(); fighter.setStartVertice(50 + (2 * i));
+		 * fighter.setCurrentVertice(fighter.getStartVertice()); int[] chain =
+		 * new int[Main.TimeInterval]; for (int j = 0; j < Main.TimeInterval;
+		 * j++) { chain[j] = 1; } fighter.setChain(chain);
+		 * crew.getCrew().add(fighter); }
+		 * 
+		 * 
+		 * //draw Crews drawCrew(crew);
+		 */
+		
+		drawCrew(shownCrew);
+		
+
 	}
-	
-	
-	
-	private void initalizeDrawing(GraphicsContext gc){
-		gc.setLineWidth(1);
-		gc.setStroke(Color.BLACK);
-		
-		//grid malen
-		for(int i = 0; i < Main.GridLength; i++){
-			//vertikal
-			gc.strokeLine((i+1) * (rectangleSize + 1), 0, (i+1) * (rectangleSize + 1), Main.GridLength * (rectangleSize + 1) - 1);
-			//horizontal
-			gc.strokeLine(0, (i+1) * (rectangleSize + 1), Main.GridLength * (rectangleSize + 1) - 1, (i+1) * (rectangleSize + 1));
-			
-		}
-		
-		//cells malen -- inital alle rot
-		gc.setFill(Color.RED);
-		for(int i = 0; i < Main.GridLength; i++){
-			for (int j = 0; j < Main.GridLength; j++){
-				//feld 0
-				gc.fillRect(0,  0, rectangleSize, rectangleSize);
-				//reihe 0
-				gc.fillRect((i+1) * (rectangleSize + 1), 0, rectangleSize, rectangleSize);
-				//spalte 0
-				gc.fillRect(0,(i+1) * (rectangleSize + 1), rectangleSize, rectangleSize);
-				//alle anderen
-				gc.fillRect((i+1) * (rectangleSize + 1), (j+1) * (rectangleSize + 1), rectangleSize, rectangleSize);
+
+	private void initalizeDrawing() {
+
+		// cells malen -- inital alle rot
+		for (int j = 0; j < Main.GridLength; j++) {
+			for (int i = 0; i < Main.GridLength; i++) {
+				Rectangle rect = new Rectangle();
+				rect.setFill(Color.RED);
+				rect.setStroke(Color.BLACK);
+				rect.setStrokeWidth(0.5);
+				rect.setHeight(rectangleSize);
+				rect.setWidth(rectangleSize);
+				rect.setX((i) * (rectangleSize + 1));
+				rect.setY(paneHeight + 1 - (j + 1) * (rectangleSize + 1));
+
+				grid.add(rect);
+
 			}
 		}
+		drawPane.getChildren().addAll(grid);
+
 	}
-	
-	private void drawCrew(FireFighterCrew crew, GraphicsContext gc){
-		int temp, spalte, zeile;
-		
-		gc.setFill(Color.BLACK);
-		//draw initial setup
-		for (int i = 0; i < Main.CrewSize; i++){
+
+	private void drawCrew(FireFighterCrew crew){
+		int temp;
+
+		// draw initial setup
+		for (int i = 0; i < Main.CrewSize; i++) {
 			temp = crew.getCrew().get(i).getCurrentVertice();
-			spalte = temp % Main.GridSize;
-			zeile = temp / Main.GridSize;
-			gc.fillRect((spalte) * (rectangleSize + 1), (zeile) * (rectangleSize + 1), rectangleSize, rectangleSize);
-			
+			grid.get(temp).setFill(Color.BLACK);
 		}
-		
-		
-		
-		/*
-		
-		//draw every time step
+
+		// draw every time step
 		// vertices that do not burn
-				SortedSet<Integer> nonBurningVertices = new TreeSet();
-				// Vertices of the last timestep
-				List<Integer> latestVertices = new ArrayList<>();
-				// defended vertices
-				SortedSet<Integer> defendedVertices = new TreeSet();
-				int[] bestSetup = new int[Main.CrewSize];
-				int tempFitness = crew.getFitness();
+		SortedSet<Integer> nonBurningVertices = new TreeSet();
+		// Vertices of the last timestep
+		List<Integer> latestVertices = new ArrayList<>();
+		// defended vertices
+		SortedSet<Integer> defendedVertices = new TreeSet();
 
-				// move fighters (switch case unterscheidung), expand fire
-				int tempDirection, currentVertice;
-				// for every time step
-				timeloop: for (int i = 0; i < Main.TimeInterval; i++) {
+		// move fighters (switch case unterscheidung), expand fire
+		int tempDirection, currentVertice;
+		// for every time step
+		timeloop: for (int i = 0; i < Main.TimeInterval; i++) {
 
-					// move every fighter
+			// move every fighter
 
-					fighterloop: for (int j = 0; j < Main.CrewSize; j++) {
-						currentVertice = crew.getCrew().get(j).getCurrentVertice();
-						tempDirection = crew.getCrew().get(j).getChainIndex(i);
+			fighterloop: for (int j = 0; j < Main.CrewSize; j++) {
+				currentVertice = crew.getCrew().get(j).getCurrentVertice();
+				tempDirection = crew.getCrew().get(j).getChainIndex(i);
 
-						// Randfälle, bleibe stehenn wenn Grid zu Ende//Rand rausnehmen
-						// Ecken: 0; GridLength; GridLength^2 - (GridLength);
-						// GridLength^2 - 1
-						if (currentVertice == 0 + Main.GridLength + 1) {
-							if (tempDirection == 3 || tempDirection == 4) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						if (currentVertice == Main.GridLength + Main.GridLength - 1) {
-							if (tempDirection == 2 || tempDirection == 3) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						if (currentVertice == (Main.GridSize - Main.GridLength - Main.GridLength + 1)) {
-							if (tempDirection == 1 || tempDirection == 4) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						if (currentVertice == (Main.GridSize - 1 - Main.GridLength - 1)) {
-							if (tempDirection == 1 || tempDirection == 2) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						// Rand des Grids
-						// unten
-						if (currentVertice < Main.GridLength + Main.GridLength) {
-							if (tempDirection == 3) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						// oben
-						if (currentVertice > (Main.GridSize - Main.GridLength - Main.GridLength)) {
-							if (tempDirection == 1) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						// links
-						if ((currentVertice % Main.GridLength) == 1) {
-							if (tempDirection == 4) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						// rechts
-						if ((currentVertice % Main.GridLength) == (Main.GridLength - 2)) {
-							if (tempDirection == 2) {
-								fighterAtBorder = true;
-								continue fighterloop;
-							}
-						}
-
-						switch (tempDirection) {
-						// dont move
-						case 0:
-							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-							break;
-						// go north
-						case 1:
-							// Zielknoten besetzt
-							for (int k = 0; k < Main.CrewSize; k++) {
-								if ((currentVertice + Main.GridLength) == crew.getCrew().get(k).getCurrentVertice()) {
-									defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-									continue fighterloop;
-								}
-							}
-							crew.getCrew().get(j).setCurrentVertice(currentVertice + Main.GridLength);
-							crew.setFitness(crew.getFitness() + 1);
-							nonBurningVertices.add(currentVertice);
-							latestVertices.add(currentVertice);
-							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-
-							break;
-						// go east
-						case 2:
-							// Zielknoten besetzt
-							for (int k = 0; k < Main.CrewSize; k++) {
-								if ((currentVertice + 1) == crew.getCrew().get(k).getCurrentVertice()) {
-									defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-									continue fighterloop;
-								}
-							}
-
-							crew.getCrew().get(j).setCurrentVertice(currentVertice + 1);
-							crew.setFitness(crew.getFitness() + 1);
-							nonBurningVertices.add(currentVertice);
-							latestVertices.add(currentVertice);
-							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-							break;
-						// go south
-						case 3:
-							// Zielknoten besetzt
-							for (int k = 0; k < Main.CrewSize; k++) {
-								if ((currentVertice - Main.GridLength) == crew.getCrew().get(k).getCurrentVertice()) {
-									defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-									continue fighterloop;
-								}
-							}
-							crew.getCrew().get(j).setCurrentVertice(currentVertice - Main.GridLength);
-							crew.setFitness(crew.getFitness() + 1);
-							nonBurningVertices.add(currentVertice);
-							latestVertices.add(currentVertice);
-							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-							break;
-						// go west
-						case 4:
-							// Zielknoten besetzt
-							for (int k = 0; k < Main.CrewSize; k++) {
-								if ((currentVertice - 1) == crew.getCrew().get(k).getCurrentVertice()) {
-									defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-									continue fighterloop;
-								}
-							}
-							crew.getCrew().get(j).setCurrentVertice(currentVertice - 1);
-							crew.setFitness(crew.getFitness() + 1);
-							nonBurningVertices.add(currentVertice);
-							latestVertices.add(currentVertice);
-							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-							break;
-
-						}
+				// Randfälle, bleibe stehenn wenn Grid zu Ende//Rand rausnehmen
+				// Ecken: 0; GridLength; GridLength^2 - (GridLength);
+				// GridLength^2 - 1
+				if (currentVertice == 0 + Main.GridLength + 1) {
+					if (tempDirection == 3 || tempDirection == 4) {
+						continue fighterloop;
 					}
-
-					// expand fire
-
-					for (int k = 0; k < latestVertices.size(); k++) {
-						//listPrinter(nonBurningVertices);
-
-						// Randfälle! verlassener Knoten liegt am Rand/Ecke
-						if (latestVertices.get(k).intValue() == 0) {
-							// only check upper and right vertice
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-						}
-
-						if (latestVertices.get(k).intValue() == Main.GridLength) {
-							// only check upper and left vertice
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-						}
-
-						if (latestVertices.get(k).intValue() == (Main.GridSize - Main.GridLength)) {
-							// only check lower and right vertice
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-						}
-
-						if (latestVertices.get(k).intValue() == (Main.GridSize - 1)) {
-							// only check lower and left vertice
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-						}
-
-						// Rand des Grids
-						// unten
-						if (latestVertices.get(k).intValue() < Main.GridLength) {
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-						}
-
-						// oben
-						if (latestVertices.get(k).intValue() > (Main.GridSize - Main.GridLength)) {
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-
-							}
-						}
-
-						// links
-						if ((latestVertices.get(k).intValue() % Main.GridLength) == 0) {
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-						}
-
-						// rechts
-						if ((latestVertices.get(k).intValue() % Main.GridLength) == (Main.GridLength - 1)) {
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-
-							if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-								if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-									nonBurningVertices.remove(latestVertices.get(k));
-									crew.setFitness(crew.getFitness() - 1);
-									continue;
-								}
-							}
-						}
-
-						// check if latestvertices has burning neighbours __ kein
-						// Randfall!
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								crew.setFitness(crew.getFitness() - 1);
-								continue;
-							}
-						}
-
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								crew.setFitness(crew.getFitness() - 1);
-								continue;
-							}
-						}
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								crew.setFitness(crew.getFitness() - 1);
-								continue;
-							}
-						}
-
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								crew.setFitness(crew.getFitness() - 1);
-								continue;
-							}
-						}
-
-
-					}
-
-					//save best fitness
-					if(crew.getFitness() > tempFitness){
-						tempFitness = crew.getFitness();
-						for (int k = 0; k < Main.CrewSize; k++){
-							bestSetup[k] = crew.getCrew().get(k).getCurrentVertice();
-						}
-					}
-
-					latestVertices.clear();
-					defendedVertices.clear();
 				}
-				nonBurningVertices.clear();
-				crew.setBestSetup(bestSetup);
+
+				if (currentVertice == Main.GridLength + Main.GridLength - 1) {
+					if (tempDirection == 2 || tempDirection == 3) {
+						continue fighterloop;
+					}
+				}
+
+				if (currentVertice == (Main.GridSize - Main.GridLength - Main.GridLength + 1)) {
+					if (tempDirection == 1 || tempDirection == 4) {
+						continue fighterloop;
+					}
+				}
+
+				if (currentVertice == (Main.GridSize - 1 - Main.GridLength - 1)) {
+					if (tempDirection == 1 || tempDirection == 2) {
+						continue fighterloop;
+					}
+				}
+
+				// Rand des Grids
+				// unten
+				if (currentVertice < Main.GridLength + Main.GridLength) {
+					if (tempDirection == 3) {
+						continue fighterloop;
+					}
+				}
+
+				// oben
+				if (currentVertice > (Main.GridSize - Main.GridLength - Main.GridLength)) {
+					if (tempDirection == 1) {
+						continue fighterloop;
+					}
+				}
+
+				// links
+				if ((currentVertice % Main.GridLength) == 1) {
+					if (tempDirection == 4) {
+						continue fighterloop;
+					}
+				}
+
+				// rechts
+				if ((currentVertice % Main.GridLength) == (Main.GridLength - 2)) {
+					if (tempDirection == 2) {
+						continue fighterloop;
+					}
+				}
+
+				switch (tempDirection) {
+				// dont move
+				case 0:
+					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					break;
+				// go north
+				case 1:
+					// Zielknoten besetzt
+					for (int k = 0; k < Main.CrewSize; k++) {
+						if ((currentVertice + Main.GridLength) == crew.getCrew().get(k).getCurrentVertice()) {
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+							continue fighterloop;
+						}
+					}
+
+					// malen
+					// alten Knoten löschen
+					grid.get(currentVertice).setFill(Color.WHITE);
+					// neuen Knoten verteidigen
+					grid.get(currentVertice + Main.GridLength).setFill(Color.BLACK);
+
+					crew.getCrew().get(j).setCurrentVertice(currentVertice + Main.GridLength);
+					nonBurningVertices.add(currentVertice);
+					latestVertices.add(currentVertice);
+					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+
+					break;
+				// go east
+				case 2:
+					// Zielknoten besetzt
+					for (int k = 0; k < Main.CrewSize; k++) {
+						if ((currentVertice + 1) == crew.getCrew().get(k).getCurrentVertice()) {
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+							continue fighterloop;
+						}
+					}
+
+					// malen
+					// alten Knoten löschen
+					grid.get(currentVertice).setFill(Color.WHITE);
+					// neuen Knoten verteidigen
+					grid.get(currentVertice + 1).setFill(Color.BLACK);
+
+					crew.getCrew().get(j).setCurrentVertice(currentVertice + 1);
+					nonBurningVertices.add(currentVertice);
+					latestVertices.add(currentVertice);
+					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					break;
+				// go south
+				case 3:
+					// Zielknoten besetzt
+					for (int k = 0; k < Main.CrewSize; k++) {
+						if ((currentVertice - Main.GridLength) == crew.getCrew().get(k).getCurrentVertice()) {
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+							continue fighterloop;
+						}
+					}
+
+					// malen
+					// alten Knoten löschen
+					grid.get(currentVertice).setFill(Color.WHITE);
+					// neuen Knoten verteidigen
+					grid.get(currentVertice - Main.GridLength).setFill(Color.BLACK);
+
+					crew.getCrew().get(j).setCurrentVertice(currentVertice - Main.GridLength);
+					nonBurningVertices.add(currentVertice);
+					latestVertices.add(currentVertice);
+					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					break;
+				// go west
+				case 4:
+					// Zielknoten besetzt
+					for (int k = 0; k < Main.CrewSize; k++) {
+						if ((currentVertice - 1) == crew.getCrew().get(k).getCurrentVertice()) {
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+							continue fighterloop;
+						}
+					}
+
+					// malen
+					// alten Knoten löschen
+					grid.get(currentVertice).setFill(Color.WHITE);
+					// neuen Knoten verteidigen
+					grid.get(currentVertice - 1).setFill(Color.BLACK);
+
+					crew.getCrew().get(j).setCurrentVertice(currentVertice - 1);
+					nonBurningVertices.add(currentVertice);
+					latestVertices.add(currentVertice);
+					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					break;
+
+				}
+			}
+
+			// expand fire
+
+			for (int k = 0; k < latestVertices.size(); k++) {
+				// listPrinter(nonBurningVertices);
+
+				// Randfälle! verlassener Knoten liegt am Rand/Ecke
+				if (latestVertices.get(k).intValue() == 0) {
+					// only check upper and right vertice
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+				}
+
+				if (latestVertices.get(k).intValue() == Main.GridLength) {
+					// only check upper and left vertice
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+				}
+
+				if (latestVertices.get(k).intValue() == (Main.GridSize - Main.GridLength)) {
+					// only check lower and right vertice
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+				}
+
+				if (latestVertices.get(k).intValue() == (Main.GridSize - 1)) {
+					// only check lower and left vertice
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+				}
+
+				// Rand des Grids
+				// unten
+				if (latestVertices.get(k).intValue() < Main.GridLength) {
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+				}
+
+				// oben
+				if (latestVertices.get(k).intValue() > (Main.GridSize - Main.GridLength)) {
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+
+					}
+				}
+
+				// links
+				if ((latestVertices.get(k).intValue() % Main.GridLength) == 0) {
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+				}
+
+				// rechts
+				if ((latestVertices.get(k).intValue() % Main.GridLength) == (Main.GridLength - 1)) {
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+
+					if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+						if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+							// malen
+							grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+							nonBurningVertices.remove(latestVertices.get(k));
+							continue;
+						}
+					}
+				}
+
+				// check if latestvertices has burning neighbours __ kein
+				// Randfall!
+				if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
+					if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
+						// malen
+						grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+						nonBurningVertices.remove(latestVertices.get(k));
+						continue;
+					}
+				}
+
+				if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
+					if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
+						// malen
+						grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+						nonBurningVertices.remove(latestVertices.get(k));
+						continue;
+					}
+				}
+				if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+					if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
+						// malen
+						grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+						nonBurningVertices.remove(latestVertices.get(k));
+						continue;
+					}
+				}
+
+				if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+					if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
+						// malen
+						grid.get(latestVertices.get(k).intValue()).setFill(Color.RED);
+						nonBurningVertices.remove(latestVertices.get(k));
+						continue;
+					}
+				}
+
+			}
+			latestVertices.clear();
+			defendedVertices.clear();
+
+			/*
+			 * //smoother animation try { TimeUnit.SECONDS.sleep(1); } catch
+			 * (InterruptedException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); }
+			 */
+		}
+		nonBurningVertices.clear();
 	}
-	
-	*/
-	
-	}
+
 }

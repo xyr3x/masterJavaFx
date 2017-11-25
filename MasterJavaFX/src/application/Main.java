@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import controller.DrawingToolGreedy;
+import controller.EvolutionaryAlgo;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -26,7 +27,7 @@ public class Main extends Application {
 	public static int MutationProbability = 15;
 	private Stage primaryStage;
 	private BorderPane rootLayout;
-	
+	EvolutionaryAlgo evAlgo = new EvolutionaryAlgo();
 	
 	
 	
@@ -38,7 +39,7 @@ public class Main extends Application {
 
 			initRootLayout();
 			showLayout();
-
+			startAlgo();
 			
 
 			
@@ -81,11 +82,17 @@ public class Main extends Application {
 
 			LayoutController controller = loader.getController();
 			controller.setMain(this);
+			controller.setEvAlgo(evAlgo);
 
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void startAlgo(){		
+		//evolutionaryAlgo ausführen
+		evAlgo.evAlgo();
 	}
 	
 	public static void main(String[] args) {

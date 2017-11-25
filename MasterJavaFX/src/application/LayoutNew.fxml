@@ -10,7 +10,7 @@
    <children>
       <ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <content>
-            <Canvas fx:id="drawCanvas" height="200.0" width="200.0" />
+            <Pane fx:id="drawPane" prefHeight="200.0" prefWidth="200.0" />
          </content></ScrollPane>
       <HBox layoutY="578.0" spacing="30.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="578.0">
          <children>
