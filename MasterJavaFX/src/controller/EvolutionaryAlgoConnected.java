@@ -1,20 +1,3 @@
-/** Author: Moritz Wiemker
- * 	Masterthesis
- *
- *
- * Ablauf Evolutionärer Algorithmus
- *	1. Initialisierung: Die erste Generation von Lösungskandidaten wird (meist zufällig) erzeugt.
- *	2. Evaluation: Jedem Lösungskandidaten der Generation wird entsprechend seiner Güte ein Wert der Fitnessfunktion zugewiesen.
- *	3. Durchlaufe die folgenden Schritte, bis ein Abbruchkriterium erfüllt ist:
- *		3.1. Selektion: Auswahl von Individuen für die Rekombination
- *		3.2. Rekombination: Kombination der ausgewählten Individuen
- *		3.3. Mutation: Zufällige Veränderung der Nachfahren
- *		3.4. Evaluation: Jedem Lösungskandidaten der Generation wird entsprechend seiner Güte ein Wert der Fitnessfunktion zugewiesen.
- *		3.5. Selektion: Bestimmung einer neuen Generation
- *
- *
- */
-
 package controller;
 
 import java.util.ArrayList;
@@ -26,17 +9,17 @@ import java.util.TreeSet;
 import application.Main;
 import model.*;
 
-public class EvolutionaryAlgo {
-	private List<FireFighterCrew> population = new ArrayList<FireFighterCrew>();
+public class EvolutionaryAlgoConnected {
+	private List<ConnectedFireFighterCrew> population = new ArrayList<ConnectedFireFighterCrew>();
 	private boolean fighterAtBorder = false;
 
 	private int maxFitness = 0;
 	private int optimum = Main.CrewSize + 5;
-	private FireFighterCrew bestCrew = new FireFighterCrew();
+	private ConnectedFireFighterCrew bestCrew = new ConnectedFireFighterCrew();
 	private int[] bestSetUp = new int[Main.CrewSize];
 
 	// constructor
-	public EvolutionaryAlgo() {
+	public EvolutionaryAlgoConnected() {
 
 	}
 
@@ -69,20 +52,20 @@ public class EvolutionaryAlgo {
 				population.remove(Main.PopulationSize - (i + 1));
 			}
 
-			// 3.2. Rekombination
+			// 3.2. Rekombination //TODO: WICHTIG!! Überarbeiten
 			for (int i = 0; i < Main.RecombinationSize; i++) {
 				int parent1 = Main.rnd.nextInt(Main.PopulationSize - Main.RecombinationSize);
 				int parent2 = Main.rnd.nextInt(Main.PopulationSize - Main.RecombinationSize);
 				int crossOver = Main.rnd.nextInt(Main.TimeInterval);
 
-				FireFighterCrew crew = new FireFighterCrew();
+				ConnectedFireFighterCrew crew = new ConnectedFireFighterCrew();
 
 				// recombine parentcrew 1 and parentcrew 2 s.t. every kth
 				// new fighter is one point crossover of the kth fighter of the
 				// parent crews
 				for (int j = 0; j < Main.CrewSize; j++) {
 					int chain[] = new int[Main.TimeInterval];
-					FireFighter fighter = new FireFighter();
+					ConnectedFireFighter fighter = new ConnectedFireFighter();
 					// set start vertice
 					fighter.setStartVertice(population.get(parent1).getCrew().get(j).getStartVertice());
 					// set chain
@@ -138,24 +121,71 @@ public class EvolutionaryAlgo {
 
 	}
 
-	// initalisierung des Problems
+
+
 	private void initialize() {
-		int temp = 0;
+		int[] temp = new int[Main.PopulationSize];
+		int tempVertice = 0;
+
 		// intialize every individuum of the population
 
 		for (int i = 0; i < Main.PopulationSize; i++) {
-			FireFighterCrew crew = new FireFighterCrew();
+			ConnectedFireFighterCrew crew = new ConnectedFireFighterCrew();
+			int[] startVertices = new int[Main.CrewSize];
+
+			//init first fighter
+			int startVertice = Main.rnd.nextInt(Main.GridSize);
+			ConnectedFireFighter fighter1 = new ConnectedFireFighter();
+			fighter1.setStartVertice(startVertice);
+			fighter1.setCurrentVertice(startVertice);
+			startVertices[0] = startVertice;
+
+			// initialize Chain
+			int[] chain = new int[Main.TimeInterval];
+			for (int k = 0; k < Main.TimeInterval; k++) {
+				chain[k] = Main.rnd.nextInt(5);
+			}
+
+			fighter1.setChain(chain);
+			crew.getCrew().add(fighter1);
 
 			// initalize every fighter of the crew
-			for (int j = 0; j < Main.CrewSize; j++) {
-				FireFighter fighter = new FireFighter();
+			for (int j = 1; j < Main.CrewSize; j++) {
+				ConnectedFireFighter tempFighter = new ConnectedFireFighter();
+				ConnectedFireFighter dummyFighter = new ConnectedFireFighter();
+
+				//connect to fighter before
+				crew.getCrew().get(j-1).setRightNeighbour(tempFighter);
+				tempFighter.setLeftNeighbour(crew.getCrew().get(j-1));
+
+				//get Startvertice
+				//TODO Diagonal adjazent!
+				// 1 == north, 2 == east, 3 == south, 4 == west
+				int tempDirection = Main.rnd.nextInt(4) + 1;
+				switch(tempDirection){
+					//north
+					case 1:
+						if (checkIfValid( tempDirection, tempFighter.getLeftNeighbour().getStartVertice(), startVertices)){
+							//vertice is valid, set Startvertice
+							tempFighter.setStartVertice(tempFighter.getLeftNeighbour().getStartVertice() + 1);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							startVertices[j] = tempFighter.getStartVertice();
+						}
+						//force restart
+						else{
+						//TODO: if not restart
+						}
+					break;
+				}
+
+
 
 				// initialize startvertice, check if unique
-				int startVertice = Main.rnd.nextInt(Main.GridSize);
+				startVertice = Main.rnd.nextInt(Main.GridSize);
 				startVertice = uniqueStartVertice(startVertice, crew);
 
-				fighter.setStartVertice(startVertice);
-				fighter.setCurrentVertice(startVertice);
+				tempFighter.setStartVertice(startVertice);
+				tempFighter.setCurrentVertice(startVertice);
 
 				// initialize Chain
 				int[] chain = new int[Main.TimeInterval];
@@ -171,10 +201,13 @@ public class EvolutionaryAlgo {
 			population.add(crew);
 
 		}
+
 	}
 
 
-	public void calculateFitness(FireFighterCrew crew) {
+
+
+	public void calculateFitness(ConnectedFireFighterCrew crew) {
 		// vertices that do not burn
 		SortedSet<Integer> nonBurningVertices = new TreeSet();
 		// Vertices of the last timestep
@@ -573,35 +606,77 @@ public class EvolutionaryAlgo {
 		crew.setBestSetup(bestSetup);
 	}
 
-	// Hilfsfunktionen
-	// getter & and setter
-	public List<FireFighterCrew> getPopulation() {
-		return population;
+
+
+	//Hilfsfunktionen
+	private boolean checkIfValid(int direction, int vertice, int[] compareVertices){
+
+		//check if the vertice in direction of given vertice is valid
+		//means: it is not in compareVertices and not out of bounds
+		switch (direction){
+		//north
+		case 1:
+			if ((vertice + Main.GridLength) > Main.GridSize){
+				if (intInArray(vertice, compareVertices)){
+					//vertice already defended
+					return false;
+				}
+				return true;
+			}
+			//out of bounds
+			else return false;
+
+		//east
+		case 2:
+			if ((vertice % Main.GridLength) >= Main.GridLength - 2 ){
+				if (intInArray(vertice, compareVertices)){
+					//vertice already defended
+					return false;
+				}
+				return true;
+			}
+			//out of bounds
+			else return false;
+
+
+		//south
+		case 3:
+			if ((vertice - Main.GridLength) < 0){
+				if (intInArray(vertice, compareVertices)){
+					//vertice already defended
+					return false;
+				}
+				return true;
+			}
+			//out of bounds
+			else return false;
+
+
+		//west
+		case 4:
+			if ((vertice % Main.GridLength) <= 1 ){
+				if (intInArray(vertice, compareVertices)){
+					//vertice already defended
+					return false;
+				}
+				return true;
+			}
+			//out of bounds
+			else return false;
+
+
+		}
+		return false;
 	}
 
-	public int uniqueStartVertice(int startVertice, FireFighterCrew crew) {
-		// check if startVertice equals already existing startVertice
-		for (int i = 0; i < crew.getCrew().size(); i++) {
-			if (startVertice == crew.getCrew().get(i).getStartVertice()) {
-				startVertice = Main.rnd.nextInt(Main.GridSize);
-				uniqueStartVertice(startVertice, crew);
+	private boolean intInArray(int value, int[] array){
+		for (int i = 0; i < array.length; i++){
+			if(value == array[i]){
+				return true;
 			}
 		}
-		return startVertice;
+		return false;
 	}
 
-	private void listPrinter(List list) {
-		System.out.print("List: ");
-		for (int i = 0; i < list.size(); i++) {
-			System.out.print(list.get(i).toString() + ";");
-		}
-		System.out.println();
-	}
-
-	private void listPrinter(SortedSet set) {
-		System.out.print("List: ");
-		System.out.println(set.toString());
-		System.out.println();
-	}
 
 }
