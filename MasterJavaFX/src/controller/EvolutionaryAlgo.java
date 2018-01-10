@@ -107,7 +107,7 @@ public class EvolutionaryAlgo {
 				// numbers??
 				int numberOfCrews = Main.rnd.nextInt(Main.PopulationSize);
 				int numberOfFighters = Main.rnd.nextInt(Main.CrewSize);
-				int numberOfBitflips = Main.rnd.nextInt(Main.TimeInterval/4);
+				int numberOfBitflips = Main.rnd.nextInt(Main.TimeInterval / 4);
 
 				for (int i = 0; i < numberOfCrews; i++) {
 					for (int j = 0; j < numberOfFighters; j++) {
@@ -123,7 +123,7 @@ public class EvolutionaryAlgo {
 
 			// 3.4 Evaluation
 			for (int i = 0; i < population.size(); i++) {
-				if(population.get(i).isChanged() || population.get(i).isNewCrew()){
+				if (population.get(i).isChanged() || population.get(i).isNewCrew()) {
 					calculateFitness(population.get(i));
 					if (population.get(i).getFitness() > maxFitness) {
 						maxFitness = population.get(i).getFitness();
@@ -171,6 +171,58 @@ public class EvolutionaryAlgo {
 			population.add(crew);
 
 		}
+	}
+
+	private void initializeConnected() {
+		int[] temp = new int[Main.PopulationSize];
+		int tempVertice = 0;
+
+		// intialize every individuum of the population
+
+		for (int i = 0; i < Main.PopulationSize; i++) {
+			FireFighterCrew crew = new FireFighterCrew();
+
+			//init first fighter
+			int startVertice = Main.rnd.nextInt(Main.GridSize);
+			ConnectedFireFighter fighter1 = new ConnectedFireFighter();
+			fighter1.setStartVertice(startVertice);
+			fighter1.setCurrentVertice(startVertice);
+			
+			// initialize Chain
+			int[] chain = new int[Main.TimeInterval];
+			for (int k = 0; k < Main.TimeInterval; k++) {
+				chain[k] = Main.rnd.nextInt(5);
+			}
+
+			fighter1.setChain(chain);
+			crew.getCrew().add(fighter1);
+			
+			// initalize every fighter of the crew
+			for (int j = 1; j < Main.CrewSize; j++) {
+				ConnectedFireFighter tempFighter = new ConnectedFireFighter();
+
+				// initialize startvertice, check if unique
+				startVertice = Main.rnd.nextInt(Main.GridSize);
+				startVertice = uniqueStartVertice(startVertice, crew);
+
+				fighter.setStartVertice(startVertice);
+				fighter.setCurrentVertice(startVertice);
+
+				// initialize Chain
+				int[] chain = new int[Main.TimeInterval];
+				for (int k = 0; k < Main.TimeInterval; k++) {
+					chain[k] = Main.rnd.nextInt(5);
+				}
+
+				fighter.setChain(chain);
+				crew.getCrew().add(fighter);
+			}
+
+			crew.setFitness(Main.CrewSize);
+			population.add(crew);
+
+		}
+
 	}
 
 	public void calculateFitness(FireFighterCrew crew) {
@@ -332,7 +384,7 @@ public class EvolutionaryAlgo {
 			// expand fire
 
 			for (int k = 0; k < latestVertices.size(); k++) {
-				//listPrinter(nonBurningVertices);
+				// listPrinter(nonBurningVertices);
 
 				// Randfälle! verlassener Knoten liegt am Rand/Ecke
 				if (latestVertices.get(k).intValue() == 0) {
@@ -555,13 +607,12 @@ public class EvolutionaryAlgo {
 					}
 				}
 
-
 			}
 
-			//save best fitness
-			if(crew.getFitness() > tempFitness){
+			// save best fitness
+			if (crew.getFitness() > tempFitness) {
 				tempFitness = crew.getFitness();
-				for (int k = 0; k < Main.CrewSize; k++){
+				for (int k = 0; k < Main.CrewSize; k++) {
 					bestSetup[k] = crew.getCrew().get(k).getCurrentVertice();
 				}
 			}
@@ -574,11 +625,10 @@ public class EvolutionaryAlgo {
 	}
 
 	// Hilfsfunktionen
-	//getter & and setter
-	public List<FireFighterCrew> getPopulation(){
+	// getter & and setter
+	public List<FireFighterCrew> getPopulation() {
 		return population;
 	}
-
 
 	public int uniqueStartVertice(int startVertice, FireFighterCrew crew) {
 		// check if startVertice equals already existing startVertice
