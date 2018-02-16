@@ -121,8 +121,6 @@ public class EvolutionaryAlgoConnected {
 
 	}
 
-
-
 	private void initialize() {
 		int[] temp = new int[Main.PopulationSize];
 		int tempVertice = 0;
@@ -133,7 +131,7 @@ public class EvolutionaryAlgoConnected {
 			ConnectedFireFighterCrew crew = new ConnectedFireFighterCrew();
 			int[] startVertices = new int[Main.CrewSize];
 
-			//init first fighter
+			// init first fighter
 			int startVertice = Main.rnd.nextInt(Main.GridSize);
 			ConnectedFireFighter fighter1 = new ConnectedFireFighter();
 			fighter1.setStartVertice(startVertice);
@@ -151,50 +149,188 @@ public class EvolutionaryAlgoConnected {
 
 			// initalize every fighter of the crew
 			for (int j = 1; j < Main.CrewSize; j++) {
+				boolean finished = false;
 				ConnectedFireFighter tempFighter = new ConnectedFireFighter();
 				ConnectedFireFighter dummyFighter = new ConnectedFireFighter();
 
-				//connect to fighter before
-				crew.getCrew().get(j-1).setRightNeighbour(tempFighter);
-				tempFighter.setLeftNeighbour(crew.getCrew().get(j-1));
+				// connect to fighter before
+				crew.getCrew().get(j - 1).setRightNeighbour(tempFighter);
+				tempFighter.setLeftNeighbour(crew.getCrew().get(j - 1));
 
-				//get Startvertice
-				//TODO Diagonal adjazent!
-				// 1 == north, 2 == east, 3 == south, 4 == west
-				int tempDirection = Main.rnd.nextInt(4) + 1;
-				switch(tempDirection){
-					//north
+				// get Startvertice
+				// TODO Diagonal adjazent!
+
+				Innerloop: while (!finished) {
+					// 1 == north, 3 == east, 5 == south, 7 == west
+					int tempDirection = Main.rnd.nextInt(8) + 1;
+					switch (tempDirection) {
+					// north
 					case 1:
-						if (checkIfValid( tempDirection, tempFighter.getLeftNeighbour().getStartVertice(), startVertices)){
-							//vertice is valid, set Startvertice
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
+							tempFighter.setStartVertice(
+									tempFighter.getLeftNeighbour().getStartVertice() + Main.GridLength);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(1);
+							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
+						}
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
+						}
+						break;
+
+					// north east
+					case 2:
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
+							tempFighter.setStartVertice(
+									tempFighter.getLeftNeighbour().getStartVertice() + Main.GridLength + 1);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(2);
+							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
+						}
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
+						}
+						break;
+
+					// east
+					case 3:
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
 							tempFighter.setStartVertice(tempFighter.getLeftNeighbour().getStartVertice() + 1);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(3);
 							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
 						}
-						//force restart
-						else{
-						//TODO: if not restart
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
 						}
-					break;
+						break;
+
+					// south east
+					case 4:
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
+							tempFighter.setStartVertice(
+									tempFighter.getLeftNeighbour().getStartVertice() - Main.GridLength + 1);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(4);
+							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
+						}
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
+						}
+						break;
+
+					// south
+					case 5:
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
+							tempFighter.setStartVertice(
+									tempFighter.getLeftNeighbour().getStartVertice() - Main.GridLength);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(5);
+							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
+						}
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
+						}
+						break;
+
+					// south-west
+					case 6:
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
+							tempFighter.setStartVertice(
+									tempFighter.getLeftNeighbour().getStartVertice() - Main.GridLength - 1);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(6);
+							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
+						}
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
+						}
+						break;
+
+					// west
+					case 7:
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
+							tempFighter.setStartVertice(tempFighter.getLeftNeighbour().getStartVertice() - 1);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(7);
+							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
+						}
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
+						}
+						break;
+
+					// north-west
+					case 8:
+						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices)) {
+							// vertice is valid, set Startvertice
+							tempFighter.setStartVertice(
+									tempFighter.getLeftNeighbour().getStartVertice() + Main.GridLength - 1);
+							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
+							tempFighter.setPosition(8);
+							startVertices[j] = tempFighter.getStartVertice();
+							finished = true;
+						}
+						// force restart
+						else {
+							// try again
+							continue Innerloop;
+						}
+						break;
+					}
+
+					// initialize startvertice, check if unique
+					startVertice = Main.rnd.nextInt(Main.GridSize);
+					startVertice = uniqueStartVertice(startVertice, crew);
+
+					tempFighter.setStartVertice(startVertice);
+					tempFighter.setCurrentVertice(startVertice);
+
+					// initialize Chain
+					int[] chain = new int[Main.TimeInterval];
+					for (int k = 0; k < Main.TimeInterval; k++) {
+						chain[k] = Main.rnd.nextInt(5);
+					}
+
+					fighter.setChain(chain);
+					crew.getCrew().add(fighter);
 				}
-
-
-
-				// initialize startvertice, check if unique
-				startVertice = Main.rnd.nextInt(Main.GridSize);
-				startVertice = uniqueStartVertice(startVertice, crew);
-
-				tempFighter.setStartVertice(startVertice);
-				tempFighter.setCurrentVertice(startVertice);
-
-				// initialize Chain
-				int[] chain = new int[Main.TimeInterval];
-				for (int k = 0; k < Main.TimeInterval; k++) {
-					chain[k] = Main.rnd.nextInt(5);
-				}
-
-				fighter.setChain(chain);
-				crew.getCrew().add(fighter);
 			}
 
 			crew.setFitness(Main.CrewSize);
@@ -203,9 +339,6 @@ public class EvolutionaryAlgoConnected {
 		}
 
 	}
-
-
-
 
 	public void calculateFitness(ConnectedFireFighterCrew crew) {
 		// vertices that do not burn
@@ -606,77 +739,952 @@ public class EvolutionaryAlgoConnected {
 		crew.setBestSetup(bestSetup);
 	}
 
+	// Hilfsfunktionen
 
+	// check if movement for fighter 2 in timestep t is possible in Bezug auf linken
+	// nachbarn
+	private boolean movementPossible(ConnectedFireFighter fighter2, int timestep) {
+		boolean possible = false;
 
-	//Hilfsfunktionen
-	private boolean checkIfValid(int direction, int vertice, int[] compareVertices){
+		ConnectedFireFighter fighter1 = fighter2.getLeftNeighbour();
+		int position = fighter2.getPosition();
+		int movement1 = fighter1.getChainIndex(timestep);
+		int movement2 = fighter2.getChainIndex(timestep);
 
-		//check if the vertice in direction of given vertice is valid
-		//means: it is not in compareVertices and not out of bounds
-		switch (direction){
-		//north
+		switch (position) {
 		case 1:
-			if ((vertice + Main.GridLength) > Main.GridSize){
-				if (intInArray(vertice, compareVertices)){
-					//vertice already defended
-					return false;
-				}
-				return true;
-			}
-			//out of bounds
-			else return false;
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
 
-		//east
+				// fighter 1 north
+			case 1:
+				return possible;
+			// fighter 1 east
+			case 2:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// figher 1 south
+			case 3:
+				if (movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 west
+			case 4:
+				if (movement2 == 0 || movement2 == 3 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+			}
+			break;
+
 		case 2:
-			if ((vertice % Main.GridLength) >= Main.GridLength - 2 ){
-				if (intInArray(vertice, compareVertices)){
-					//vertice already defended
-					return false;
-				}
-				return true;
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 3 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 north
+			case 1:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 east
+			case 2:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// figher 1 south
+			case 3:
+				if (movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 west
+			case 4:
+				if (movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
 			}
-			//out of bounds
-			else return false;
+			break;
 
-
-		//south
 		case 3:
-			if ((vertice - Main.GridLength) < 0){
-				if (intInArray(vertice, compareVertices)){
-					//vertice already defended
-					return false;
-				}
-				return true;
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 north
+			case 1:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 east
+			case 2:
+				return possible;
+			// figher 1 south
+			case 3:
+				if (movement2 == 0 || movement2 == 3 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 west
+			case 4:
+				if (movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
 			}
-			//out of bounds
-			else return false;
+			break;
 
-
-		//west
 		case 4:
-			if ((vertice % Main.GridLength) <= 1 ){
-				if (intInArray(vertice, compareVertices)){
-					//vertice already defended
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 north
+			case 1:
+				if (movement2 == 1) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 east
+			case 2:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// figher 1 south
+			case 3:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 west
+			case 4:
+				if (movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+			}
+			break;
+
+		case 5:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 north
+			case 1:
+				if (movement2 == 1) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 east
+			case 2:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 2) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// figher 1 south
+			case 3:
+				return possible;
+			// fighter 1 west
+			case 4:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+			}
+			break;
+
+		case 6:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 2) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 north
+			case 1:
+				if (movement2 == 1) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 east
+			case 2:
+				if (movement2 == 2) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// figher 1 south
+			case 3:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 west
+			case 4:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+			}
+			break;
+
+		case 7:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 north
+			case 1:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 2) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 east
+			case 2:
+				if (movement2 == 2) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// figher 1 south
+			case 3:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 west
+			case 4:
+				return possible;
+			}
+			break;
+
+		case 8:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 north
+			case 1:
+				if (movement2 == 0 || movement2 == 1 || movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 east
+			case 2:
+				if (movement2 == 2) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// figher 1 south
+			case 3:
+				if (movement2 == 3) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+				// fighter 1 west
+			case 4:
+				if (movement2 == 0 || movement2 == 2 || movement2 == 4) {
+					possible = true;
+					return possible;
+				} else
+					return possible;
+			}
+			break;
+		}
+		return possible;
+
+	}
+
+	// returns possible movement for fighter2 in dependence of fighter1
+	private int movementCalculator(ConnectedFireFighter fighter2, int timestep) {
+
+		ConnectedFireFighter fighter1 = fighter2.getLeftNeighbour();
+		int position = fighter2.getPosition();
+		int movement1 = fighter1.getChainIndex(timestep);
+		int temp, movement2;
+
+		switch (position) {
+		case 1:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+
+				// fighter 1 north
+			case 1:
+				// nicht möglich
+				return -1;
+			// fighter 1 east
+			case 2:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+
+				// figher 1 south
+			case 3:
+				movement2 = 3;
+				return movement2;
+			// fighter 1 west
+			case 4:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 3;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+			}
+			break;
+
+		case 2:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 3;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+				// fighter 1 north
+			case 1:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 east
+			case 2:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+				// figher 1 south
+			case 3:
+				movement2 = 3;
+				return movement2;
+			// fighter 1 west
+			case 4:
+				movement2 = 4;
+				return movement2;
+			}
+			break;
+
+		case 3:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 north
+			case 1:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+				// fighter 1 east
+			case 2:
+				// nicht möglich
+				return -1;
+			// figher 1 south
+			case 3:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 3;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+				// fighter 1 west
+			case 4:
+				movement2 = 4;
+				return movement2;
+			}
+			break;
+
+		case 4:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+				// fighter 1 north
+			case 1:
+				movement2 = 1;
+				return movement2;
+			// fighter 1 east
+			case 2:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+				// figher 1 south
+			case 3:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 west
+			case 4:
+				movement2 = 4;
+				return movement2;
+			}
+			break;
+
+		case 5:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+				// fighter 1 north
+			case 1:
+				movement2 = 1;
+				return movement2;
+			// fighter 1 east
+			case 2:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 2;
+					return movement2;
+				}
+				// figher 1 south
+			case 3:
+				// nicht möglich
+				return -1;
+			// fighter 1 west
+			case 4:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+			}
+			break;
+
+		case 6:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 2;
+					return movement2;
+				}
+				// fighter 1 north
+			case 1:
+				movement2 = 1;
+				return movement2;
+			// fighter 1 east
+			case 2:
+				movement2 = 2;
+				return movement2;
+			// figher 1 south
+			case 3:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 west
+			case 4:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+			}
+			break;
+
+		case 7:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 north
+			case 1:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 2;
+					return movement2;
+				}
+				// fighter 1 east
+			case 2:
+				movement2 = 2;
+				return movement2;
+			// figher 1 south
+			case 3:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 west
+			case 4:
+				// nicht möglich
+				return -1;
+			}
+			break;
+
+		case 8:
+			switch (movement1) {
+			// no movement fighter 1
+			case 0:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 north
+			case 1:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					return movement2;
+				}
+				// fighter 1 east
+			case 2:
+				movement2 = 2;
+				return movement2;
+			// figher 1 south
+			case 3:
+				movement2 = 3;
+				return movement2;
+			// fighter 1 west
+			case 4:
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					return movement2;
+				}
+			}
+			break;
+		}
+		// nicht erreichbar, da überall return statements
+		return -1;
+
+	}
+
+	private boolean checkIfValid(int direction, int vertice, int[] compareVertices) {
+
+		// check if the vertice in direction of given vertice is valid
+		// means: it is not in compareVertices and not out of bounds
+		switch (direction) {
+		// north
+		case 1:
+			if ((vertice + Main.GridLength) > Main.GridSize) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
 					return false;
 				}
 				return true;
 			}
-			//out of bounds
-			else return false;
+			// out of bounds
+			else
+				return false;
 
+			// north east
+		case 2:
+			if (((vertice + Main.GridLength) > Main.GridSize) && ((vertice % Main.GridLength) >= Main.GridLength - 2)) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
+					return false;
+				}
+				return true;
+			}
+			// out of bounds
+			else
+				return false;
+
+			// east
+		case 3:
+			if ((vertice % Main.GridLength) >= Main.GridLength - 2) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
+					return false;
+				}
+				return true;
+			}
+			// out of bounds
+			else
+				return false;
+
+			// south east
+		case 4:
+			if (((vertice % Main.GridLength) >= Main.GridLength - 2) && ((vertice - Main.GridLength) < 0)) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
+					return false;
+				}
+				return true;
+			}
+			// out of bounds
+			else
+				return false;
+
+			// south
+		case 5:
+			if ((vertice - Main.GridLength) < 0) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
+					return false;
+				}
+				return true;
+			}
+			// out of bounds
+			else
+				return false;
+
+			// south west
+		case 6:
+			if (((vertice - Main.GridLength) < 0) && ((vertice % Main.GridLength) <= 1)) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
+					return false;
+				}
+				return true;
+			}
+			// out of bounds
+			else
+				return false;
+
+			// west
+		case 7:
+			if ((vertice % Main.GridLength) <= 1) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
+					return false;
+				}
+				return true;
+			}
+			// out of bounds
+			else
+				return false;
+			
+			// north west
+		case 8:
+			if (((vertice % Main.GridLength) <= 1) && ((vertice + Main.GridLength) > Main.GridSize)) {
+				if (intInArray(vertice, compareVertices)) {
+					// vertice already defended
+					return false;
+				}
+				return true;
+			}
+			// out of bounds
+			else
+				return false;
 
 		}
 		return false;
 	}
 
-	private boolean intInArray(int value, int[] array){
-		for (int i = 0; i < array.length; i++){
-			if(value == array[i]){
+	private boolean intInArray(int value, int[] array) {
+		for (int i = 0; i < array.length; i++) {
+			if (value == array[i]) {
 				return true;
 			}
 		}
 		return false;
 	}
-
 
 }

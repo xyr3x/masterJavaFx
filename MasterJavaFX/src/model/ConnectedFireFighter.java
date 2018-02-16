@@ -14,6 +14,9 @@ public class ConnectedFireFighter extends AbstractFireFighter{
 	private ConnectedFireFighter leftNeighbour;
 	private ConnectedFireFighter rightNeighbour;
 
+	//position im bezug auf linken nachbar. Werte 1-8 im Uhrzeigersinn, dabei 1 oberhalb und 8 links oberhalb
+	private int position;
+	
 	// constructor
 	public ConnectedFireFighter() {
 		super();
@@ -36,6 +39,12 @@ public class ConnectedFireFighter extends AbstractFireFighter{
 		this.rightNeighbour = rightNeighbour;
 	}
 
-
+	public int getPosition() {
+		return position;
+	}
+	
+	public void setPosition(int position) {
+		this.position = position;
+	}
 
 }
