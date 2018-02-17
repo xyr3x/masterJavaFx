@@ -17,8 +17,4 @@ public class FireFighter extends AbstractFireFighter {
 
 	// getter and setter
 
-
-
-
-
 }

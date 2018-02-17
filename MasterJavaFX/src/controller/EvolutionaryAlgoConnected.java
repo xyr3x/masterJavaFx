@@ -147,20 +147,20 @@ public class EvolutionaryAlgoConnected {
 			fighter1.setChain(chain);
 			crew.getCrew().add(fighter1);
 
-			// initalize every fighter of the crew
-			for (int j = 1; j < Main.CrewSize; j++) {
+			// initalize every other fighter of the crew
+			OuterLoop: for (int j = 1; j < Main.CrewSize; j++) {
 				boolean finished = false;
 				ConnectedFireFighter tempFighter = new ConnectedFireFighter();
-				ConnectedFireFighter dummyFighter = new ConnectedFireFighter();
-
+				
 				// connect to fighter before
 				crew.getCrew().get(j - 1).setRightNeighbour(tempFighter);
 				tempFighter.setLeftNeighbour(crew.getCrew().get(j - 1));
 
 				// get Startvertice
-				// TODO Diagonal adjazent!
+				// TODO DAUERSCHLEIFE MÖGLICH ---- FIXEN!!!
+				int counter = 0;
 
-				Innerloop: while (!finished) {
+				Innerloop: while (!finished && counter < 8) {
 					// 1 == north, 3 == east, 5 == south, 7 == west
 					int tempDirection = Main.rnd.nextInt(8) + 1;
 					switch (tempDirection) {
@@ -172,13 +172,14 @@ public class EvolutionaryAlgoConnected {
 							tempFighter.setStartVertice(
 									tempFighter.getLeftNeighbour().getStartVertice() + Main.GridLength);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(1);
+							tempFighter.setPositionIndex(1, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
@@ -191,13 +192,14 @@ public class EvolutionaryAlgoConnected {
 							tempFighter.setStartVertice(
 									tempFighter.getLeftNeighbour().getStartVertice() + Main.GridLength + 1);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(2);
+							tempFighter.setPositionIndex(2, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
@@ -209,13 +211,14 @@ public class EvolutionaryAlgoConnected {
 							// vertice is valid, set Startvertice
 							tempFighter.setStartVertice(tempFighter.getLeftNeighbour().getStartVertice() + 1);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(3);
+							tempFighter.setPositionIndex(3, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
@@ -228,13 +231,14 @@ public class EvolutionaryAlgoConnected {
 							tempFighter.setStartVertice(
 									tempFighter.getLeftNeighbour().getStartVertice() - Main.GridLength + 1);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(4);
+							tempFighter.setPositionIndex(4, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
@@ -247,13 +251,14 @@ public class EvolutionaryAlgoConnected {
 							tempFighter.setStartVertice(
 									tempFighter.getLeftNeighbour().getStartVertice() - Main.GridLength);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(5);
+							tempFighter.setPositionIndex(5, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
@@ -266,13 +271,14 @@ public class EvolutionaryAlgoConnected {
 							tempFighter.setStartVertice(
 									tempFighter.getLeftNeighbour().getStartVertice() - Main.GridLength - 1);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(6);
+							tempFighter.setPositionIndex(6, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
@@ -284,13 +290,14 @@ public class EvolutionaryAlgoConnected {
 							// vertice is valid, set Startvertice
 							tempFighter.setStartVertice(tempFighter.getLeftNeighbour().getStartVertice() - 1);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(7);
+							tempFighter.setPositionIndex(7, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
@@ -303,33 +310,43 @@ public class EvolutionaryAlgoConnected {
 							tempFighter.setStartVertice(
 									tempFighter.getLeftNeighbour().getStartVertice() + Main.GridLength - 1);
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
-							tempFighter.setPosition(8);
+							tempFighter.setPositionIndex(8, 0);
 							startVertices[j] = tempFighter.getStartVertice();
 							finished = true;
 						}
 						// force restart
 						else {
 							// try again
+							counter += 1;
 							continue Innerloop;
 						}
 						break;
 					}
-
-					// initialize startvertice, check if unique
-					startVertice = Main.rnd.nextInt(Main.GridSize);
-					startVertice = uniqueStartVertice(startVertice, crew);
-
-					tempFighter.setStartVertice(startVertice);
-					tempFighter.setCurrentVertice(startVertice);
+					
+					//Counter = 8; also init fehlgeschlagen, abfangen der dauerschleife
+					if (counter == 8) {
+						//restart from j = 1
+						j = 1;
+						continue OuterLoop;
+					}
+				
 
 					// initialize Chain
-					int[] chain = new int[Main.TimeInterval];
+					int[] chain2 = new int[Main.TimeInterval];
+					int dummy;
 					for (int k = 0; k < Main.TimeInterval; k++) {
-						chain[k] = Main.rnd.nextInt(5);
+						dummy = movementCalculator(tempFighter, k);
+						//Fehler, Movement nicht möglich
+						if(dummy == -1) {
+							//Movement des Vorgängers neu berechnen
+							k -= 1;
+							continue;
+						}						
+						chain2[k] = dummy;
 					}
 
-					fighter.setChain(chain);
-					crew.getCrew().add(fighter);
+					tempFighter.setChain(chain2);
+					crew.getCrew().add(tempFighter);
 				}
 			}
 
@@ -747,7 +764,7 @@ public class EvolutionaryAlgoConnected {
 		boolean possible = false;
 
 		ConnectedFireFighter fighter1 = fighter2.getLeftNeighbour();
-		int position = fighter2.getPosition();
+		int position = fighter2.getPositionIndex(timestep);
 		int movement1 = fighter1.getChainIndex(timestep);
 		int movement2 = fighter2.getChainIndex(timestep);
 
@@ -1065,7 +1082,7 @@ public class EvolutionaryAlgoConnected {
 	private int movementCalculator(ConnectedFireFighter fighter2, int timestep) {
 
 		ConnectedFireFighter fighter1 = fighter2.getLeftNeighbour();
-		int position = fighter2.getPosition();
+		int position = fighter2.getPositionIndex(timestep);
 		int movement1 = fighter1.getChainIndex(timestep);
 		int temp, movement2;
 
@@ -1078,14 +1095,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 				}
 
@@ -1099,20 +1119,24 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 				}
 
 				// figher 1 south
 			case 3:
 				movement2 = 3;
+				fighter2.setPositionIndex(1 , timestep + 1);
 				return movement2;
 			// fighter 1 west
 			case 4:
@@ -1120,14 +1144,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 3;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 				}
 			}
@@ -1141,14 +1168,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 3;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 north
@@ -1157,14 +1187,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 east
@@ -1173,23 +1206,28 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 				}
 				// figher 1 south
 			case 3:
 				movement2 = 3;
+				fighter2.setPositionIndex(2 , timestep + 1);
 				return movement2;
 			// fighter 1 west
 			case 4:
 				movement2 = 4;
+				fighter2.setPositionIndex(2 , timestep + 1);
 				return movement2;
 			}
 			break;
@@ -1202,14 +1240,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 north
@@ -1218,14 +1259,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 east
@@ -1238,19 +1282,23 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 3;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 west
 			case 4:
 				movement2 = 4;
+				fighter2.setPositionIndex(3 , timestep + 1);
 				return movement2;
 			}
 			break;
@@ -1263,19 +1311,23 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 north
 			case 1:
 				movement2 = 1;
+				fighter2.setPositionIndex(4 , timestep + 1);
 				return movement2;
 			// fighter 1 east
 			case 2:
@@ -1283,14 +1335,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 				}
 				// figher 1 south
@@ -1299,19 +1354,23 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 west
 			case 4:
 				movement2 = 4;
+				fighter2.setPositionIndex(4 , timestep + 1);
 				return movement2;
 			}
 			break;
@@ -1324,19 +1383,23 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 north
 			case 1:
 				movement2 = 1;
+				fighter2.setPositionIndex(5 , timestep + 1);
 				return movement2;
 			// fighter 1 east
 			case 2:
@@ -1344,14 +1407,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 2;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 				}
 				// figher 1 south
@@ -1364,14 +1430,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(3 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 				}
 			}
@@ -1385,23 +1454,28 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 2;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 north
 			case 1:
 				movement2 = 1;
+				fighter2.setPositionIndex(6 , timestep + 1);
 				return movement2;
 			// fighter 1 east
 			case 2:
 				movement2 = 2;
+				fighter2.setPositionIndex(6 , timestep + 1);
 				return movement2;
 			// figher 1 south
 			case 3:
@@ -1409,14 +1483,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 west
@@ -1425,14 +1502,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(4 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 				}
 			}
@@ -1446,14 +1526,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 north
@@ -1462,19 +1545,23 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 2;
+					fighter2.setPositionIndex(5 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 east
 			case 2:
 				movement2 = 2;
+				fighter2.setPositionIndex(7 , timestep + 1);
 				return movement2;
 			// figher 1 south
 			case 3:
@@ -1482,14 +1569,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 west
@@ -1507,14 +1597,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 north
@@ -1523,23 +1616,28 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(7 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 1;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 3;
+					fighter2.setPositionIndex(6 , timestep + 1);
 					return movement2;
 				}
 				// fighter 1 east
 			case 2:
 				movement2 = 2;
+				fighter2.setPositionIndex(8 , timestep + 1);
 				return movement2;
 			// figher 1 south
 			case 3:
 				movement2 = 3;
+				fighter2.setPositionIndex(8 , timestep + 1);
 				return movement2;
 			// fighter 1 west
 			case 4:
@@ -1547,14 +1645,17 @@ public class EvolutionaryAlgoConnected {
 				switch (temp) {
 				case 0:
 					movement2 = 0;
+					fighter2.setPositionIndex(1 , timestep + 1);
 					return movement2;
 
 				case 1:
 					movement2 = 2;
+					fighter2.setPositionIndex(2 , timestep + 1);
 					return movement2;
 
 				case 2:
 					movement2 = 4;
+					fighter2.setPositionIndex(8 , timestep + 1);
 					return movement2;
 				}
 			}
@@ -1660,7 +1761,7 @@ public class EvolutionaryAlgoConnected {
 			// out of bounds
 			else
 				return false;
-			
+
 			// north west
 		case 8:
 			if (((vertice % Main.GridLength) <= 1) && ((vertice + Main.GridLength) > Main.GridSize)) {
