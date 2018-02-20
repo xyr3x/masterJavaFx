@@ -121,13 +121,13 @@ public class EvolutionaryAlgoConnected {
 
 	}
 
-	private void initialize() {
+	public void initialize() {
 		int[] temp = new int[Main.PopulationSize];
 		int tempVertice = 0;
 
 		// intialize every individuum of the population
 
-		for (int i = 0; i < Main.PopulationSize; i++) {
+		PopulationLoop: for (int i = 0; i < Main.PopulationSize; i++) {
 			ConnectedFireFighterCrew crew = new ConnectedFireFighterCrew();
 			int[] startVertices = new int[Main.CrewSize];
 
@@ -159,13 +159,16 @@ public class EvolutionaryAlgoConnected {
 				// get Startvertice
 				// TODO DAUERSCHLEIFE MÖGLICH ---- FIXEN!!!
 				int counter = 0;
-
+				
 				Innerloop: while (!finished && counter < 8) {
 					// 1 == north, 3 == east, 5 == south, 7 == west
 					int tempDirection = Main.rnd.nextInt(8) + 1;
+					//int tempDirection = 1;
 					switch (tempDirection) {
 					// north
 					case 1:
+						boolean dummy = checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
+								startVertices);
 						if (checkIfValid(tempDirection, tempFighter.getLeftNeighbour().getStartVertice(),
 								startVertices)) {
 							// vertice is valid, set Startvertice
@@ -174,7 +177,9 @@ public class EvolutionaryAlgoConnected {
 							tempFighter.setCurrentVertice(tempFighter.getStartVertice());
 							tempFighter.setPositionIndex(1, 0);
 							startVertices[j] = tempFighter.getStartVertice();
-							finished = true;
+							finished = true;	
+							counter = 0;
+							break; // PopulationLoop;
 						}
 						// force restart
 						else {
@@ -182,7 +187,7 @@ public class EvolutionaryAlgoConnected {
 							counter += 1;
 							continue Innerloop;
 						}
-						break;
+						//break;
 
 					// north east
 					case 2:
@@ -321,16 +326,19 @@ public class EvolutionaryAlgoConnected {
 							continue Innerloop;
 						}
 						break;
+						}
 					}
 					
 					//Counter = 8; also init fehlgeschlagen, abfangen der dauerschleife
 					if (counter == 8) {
 						//restart from j = 1
-						j = 1;
+						j = 0;
+						counter = 0;
+						//break PopulationLoop;
 						continue OuterLoop;
 					}
 				
-
+					
 					// initialize Chain
 					int[] chain2 = new int[Main.TimeInterval];
 					int dummy;
@@ -339,15 +347,16 @@ public class EvolutionaryAlgoConnected {
 						//Fehler, Movement nicht möglich
 						if(dummy == -1) {
 							//Movement des Vorgängers neu berechnen
-							k -= 1;
-							continue;
+							startVertices[j] = 0;
+							j -= 1;
+							continue OuterLoop;
 						}						
 						chain2[k] = dummy;
 					}
-
+					
 					tempFighter.setChain(chain2);
 					crew.getCrew().add(tempFighter);
-				}
+				
 			}
 
 			crew.setFitness(Main.CrewSize);
@@ -1111,8 +1120,28 @@ public class EvolutionaryAlgoConnected {
 
 				// fighter 1 north
 			case 1:
-				// nicht möglich
-				return -1;
+				// nicht möglich -- Fehler abfangen
+				//Movement Fighter 1 auf 0 setzen
+				fighter2.getLeftNeighbour().setChainIndex(timestep, 0);
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					fighter2.setPositionIndex(1 , timestep + 1);
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					fighter2.setPositionIndex(2 , timestep + 1);
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					fighter2.setPositionIndex(8 , timestep + 1);
+					return movement2;
+				}
+
+				//return -1;
 			// fighter 1 east
 			case 2:
 				temp = Main.rnd.nextInt(3);
@@ -1274,8 +1303,27 @@ public class EvolutionaryAlgoConnected {
 				}
 				// fighter 1 east
 			case 2:
-				// nicht möglich
-				return -1;
+				// nicht möglich -- Fehler abfangen
+				//Movement Fighter 1 auf 0 setzen
+				fighter2.getLeftNeighbour().setChainIndex(timestep, 0);
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					fighter2.setPositionIndex(3 , timestep + 1);
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					fighter2.setPositionIndex(2 , timestep + 1);
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					fighter2.setPositionIndex(4 , timestep + 1);
+					return movement2;
+				}
+				//return -1;
 			// figher 1 south
 			case 3:
 				temp = Main.rnd.nextInt(3);
@@ -1422,8 +1470,27 @@ public class EvolutionaryAlgoConnected {
 				}
 				// figher 1 south
 			case 3:
-				// nicht möglich
-				return -1;
+				// nicht möglich -- Fehler abfangen
+				//Movement Fighter 1 auf 0 setzen
+				fighter2.getLeftNeighbour().setChainIndex(timestep, 0);
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					fighter2.setPositionIndex(5 , timestep + 1);
+					return movement2;
+
+				case 1:
+					movement2 = 2;
+					fighter2.setPositionIndex(4 , timestep + 1);
+					return movement2;
+
+				case 2:
+					movement2 = 4;
+					fighter2.setPositionIndex(6 , timestep + 1);
+					return movement2;
+				}
+
 			// fighter 1 west
 			case 4:
 				temp = Main.rnd.nextInt(3);
@@ -1584,8 +1651,27 @@ public class EvolutionaryAlgoConnected {
 				}
 				// fighter 1 west
 			case 4:
-				// nicht möglich
-				return -1;
+				// nicht möglich -- Fehler abfangen
+				//Movement Fighter 1 auf 0 setzen
+				fighter2.getLeftNeighbour().setChainIndex(timestep, 0);
+				temp = Main.rnd.nextInt(3);
+				switch (temp) {
+				case 0:
+					movement2 = 0;
+					fighter2.setPositionIndex(7 , timestep + 1);
+					return movement2;
+
+				case 1:
+					movement2 = 1;
+					fighter2.setPositionIndex(8 , timestep + 1);
+					return movement2;
+
+				case 2:
+					movement2 = 3;
+					fighter2.setPositionIndex(6 , timestep + 1);
+					return movement2;
+				}
+				//return -1;
 			}
 			break;
 
@@ -1673,8 +1759,8 @@ public class EvolutionaryAlgoConnected {
 		switch (direction) {
 		// north
 		case 1:
-			if ((vertice + Main.GridLength) > Main.GridSize) {
-				if (intInArray(vertice, compareVertices)) {
+			if ((vertice + Main.GridLength) < Main.GridSize) {
+				if (intInArray(vertice + Main.GridLength, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1686,8 +1772,8 @@ public class EvolutionaryAlgoConnected {
 
 			// north east
 		case 2:
-			if (((vertice + Main.GridLength) > Main.GridSize) && ((vertice % Main.GridLength) >= Main.GridLength - 2)) {
-				if (intInArray(vertice, compareVertices)) {
+			if (((vertice + Main.GridLength) < Main.GridSize) && ((vertice % Main.GridLength) <= Main.GridLength - 2)) {
+				if (intInArray(vertice + Main.GridLength + 1, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1699,8 +1785,8 @@ public class EvolutionaryAlgoConnected {
 
 			// east
 		case 3:
-			if ((vertice % Main.GridLength) >= Main.GridLength - 2) {
-				if (intInArray(vertice, compareVertices)) {
+			if ((vertice % Main.GridLength) <= Main.GridLength - 2) {
+				if (intInArray(vertice + 1, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1712,8 +1798,8 @@ public class EvolutionaryAlgoConnected {
 
 			// south east
 		case 4:
-			if (((vertice % Main.GridLength) >= Main.GridLength - 2) && ((vertice - Main.GridLength) < 0)) {
-				if (intInArray(vertice, compareVertices)) {
+			if (((vertice % Main.GridLength) <= Main.GridLength - 2) && ((vertice - Main.GridLength) > 0)) {
+				if (intInArray(vertice - Main.GridLength - 1, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1725,8 +1811,8 @@ public class EvolutionaryAlgoConnected {
 
 			// south
 		case 5:
-			if ((vertice - Main.GridLength) < 0) {
-				if (intInArray(vertice, compareVertices)) {
+			if ((vertice - Main.GridLength) > 0) {
+				if (intInArray(vertice - Main.GridLength, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1738,8 +1824,8 @@ public class EvolutionaryAlgoConnected {
 
 			// south west
 		case 6:
-			if (((vertice - Main.GridLength) < 0) && ((vertice % Main.GridLength) <= 1)) {
-				if (intInArray(vertice, compareVertices)) {
+			if (((vertice - Main.GridLength) > 0) && ((vertice % Main.GridLength) >= 2)) {
+				if (intInArray(vertice - Main.GridLength - 1, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1751,8 +1837,8 @@ public class EvolutionaryAlgoConnected {
 
 			// west
 		case 7:
-			if ((vertice % Main.GridLength) <= 1) {
-				if (intInArray(vertice, compareVertices)) {
+			if ((vertice % Main.GridLength) >= 2) {
+				if (intInArray(vertice - 1, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1764,8 +1850,8 @@ public class EvolutionaryAlgoConnected {
 
 			// north west
 		case 8:
-			if (((vertice % Main.GridLength) <= 1) && ((vertice + Main.GridLength) > Main.GridSize)) {
-				if (intInArray(vertice, compareVertices)) {
+			if (((vertice % Main.GridLength) >= 2) && ((vertice + Main.GridLength) < Main.GridSize)) {
+				if (intInArray(vertice + Main.GridLength - 1, compareVertices)) {
 					// vertice already defended
 					return false;
 				}
@@ -1788,4 +1874,13 @@ public class EvolutionaryAlgoConnected {
 		return false;
 	}
 
+	public List<ConnectedFireFighterCrew> getPopulation() {
+		return population;
+	}
+
+	public void setPopulation(List<ConnectedFireFighterCrew> population) {
+		this.population = population;
+	}
+
+	
 }
