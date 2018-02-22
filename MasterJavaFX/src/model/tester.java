@@ -10,6 +10,8 @@ public class tester {
 		System.out.println("Tester");
 		
 		EvolutionaryAlgoConnected evAlgo = new EvolutionaryAlgoConnected();
+		//evAlgo.evAlgo();
+		
 		evAlgo.initialize();
 		
 		for(int i = 0; i < Main.PopulationSize; i++) {
@@ -21,6 +23,8 @@ public class tester {
 			}
 			System.out.println();
 		}
+	
+		
 	}
 
 }
