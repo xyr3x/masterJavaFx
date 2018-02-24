@@ -10,9 +10,23 @@ public class tester {
 		System.out.println("Tester");
 		
 		EvolutionaryAlgoConnected evAlgo = new EvolutionaryAlgoConnected();
-		//evAlgo.evAlgo();
+		evAlgo.evAlgo();
 		
-		evAlgo.initialize();
+		
+			for (int j = 0; j < Main.CrewSize; j++) {
+				System.out.print(evAlgo.getBestCrew().getCrew().get(j).getCurrentVertice() + "|");
+				
+			}
+			System.out.println();
+			System.out.println();
+			System.out.println();
+		
+		
+		for (int i = 0; i < Main.CrewSize; i++) {
+			System.out.print(evAlgo.getBestSetUp()[i] + "|");
+		}
+		
+		/*evAlgo.initialize();
 		
 		for(int i = 0; i < Main.PopulationSize; i++) {
 
@@ -23,7 +37,7 @@ public class tester {
 			}
 			System.out.println();
 		}
-	
+		*/
 		
 	}
 

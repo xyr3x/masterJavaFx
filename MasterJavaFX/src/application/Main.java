@@ -92,7 +92,13 @@ public class Main extends Application {
 	
 	private void startAlgo(){		
 		//evolutionaryAlgo ausführen
-		evAlgo.evAlgo();
+		//dafür service aufrufen
+		EvolutionaryAlgoService service = new EvolutionaryAlgoService();
+		service.setEvAlgo(evAlgo);
+		
+		
+		
+		service.start();
 	}
 	
 	public static void main(String[] args) {

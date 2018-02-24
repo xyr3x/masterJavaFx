@@ -15,7 +15,8 @@ public class EvolutionaryAlgoConnected {
 	private boolean fighterAtBorder = false;
 
 	private int maxFitness = 0;
-	private int optimum = Main.CrewSize + 5;
+	//private int optimum = Main.CrewSize + 100;
+	private int optimum = 89;
 	private ConnectedFireFighterCrew bestCrew = new ConnectedFireFighterCrew();
 	private int[] bestSetUp = new int[Main.CrewSize];
 
@@ -64,11 +65,22 @@ public class EvolutionaryAlgoConnected {
 				// recombine parentcrew 1 and parentcrew 2 s.t. every kth
 				// new fighter is one point crossover of the kth fighter of the
 				// parent crews
-				for (int j = 0; j < Main.CrewSize; j++) {
+				//first fighter
+				//TODO: Fighter connecten
+				ConnectedFireFighter fighter1 = new ConnectedFireFighter();
+				int chain1[] = new int[Main.TimeInterval];
+				for (int k = 0; k < crossOver; k++) {
+					chain1[k] = population.get(parent2).getCrew().get(0).getChainIndex(k);
+				}
+				crew.getCrew().add(fighter1);
+				
+				for (int j = 1; j < Main.CrewSize; j++) {
 					int chain[] = new int[Main.TimeInterval];
 					ConnectedFireFighter fighter = new ConnectedFireFighter();
 					// set start vertice
 					fighter.setStartVertice(population.get(parent1).getCrew().get(j).getStartVertice());
+					fighter.setPosition(population.get(parent1).getCrew().get(j).getPosition());
+					fighter.setLeftNeighbour(crew.getCrew().get(j - 1));
 					// set chain -- take first from 2nd parent until crossover, then take 2nd part
 					// from 1st parent for first fighter and calculate rest
 					for (int k = 0; k < crossOver; k++) {
@@ -80,7 +92,7 @@ public class EvolutionaryAlgoConnected {
 				}
 				// first fighter
 				for (int k = crossOver; k < Main.TimeInterval; k++) {
-					crew.getCrew().get(0).setChainIndex(k, population.get(parent2).getCrew().get(0).getChainIndex(k));
+					crew.getCrew().get(0).setChainIndex(k, population.get(parent1).getCrew().get(0).getChainIndex(k));
 				}
 
 				// construct every other fighter
@@ -179,6 +191,7 @@ public class EvolutionaryAlgoConnected {
 					// 1 == north, 3 == east, 5 == south, 7 == west
 					int tempDirection = Main.rnd.nextInt(8) + 1;
 					// int tempDirection = 1;
+					System.out.println("Working");
 					switch (tempDirection) {
 					// north
 					case 1:
@@ -346,6 +359,7 @@ public class EvolutionaryAlgoConnected {
 
 				// Counter = 8; also init fehlgeschlagen, abfangen der dauerschleife
 				if (counter == 8) {
+					System.out.println("Fail");
 					// restart from j = 1
 					j = 0;
 					counter = 0;
@@ -353,11 +367,14 @@ public class EvolutionaryAlgoConnected {
 					continue OuterLoop;
 				}
 
+				System.out.println("Start Chain: " + j);
 				// initialize Chain
 				int[] chain2 = new int[Main.TimeInterval];
 				int dummy;
 				for (int k = 0; k < Main.TimeInterval; k++) {
+
 					dummy = movementCalculator(tempFighter, k);
+					System.out.println(dummy);
 					// Fehler, Movement nicht möglich
 					if (dummy == -1) {
 						// Movement des Vorgängers neu berechnen
@@ -367,6 +384,8 @@ public class EvolutionaryAlgoConnected {
 					}
 					chain2[k] = dummy;
 				}
+
+				System.out.println("Chain initalized");
 
 				tempFighter.setChain(chain2);
 				crew.getCrew().add(tempFighter);
@@ -412,12 +431,14 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
@@ -433,16 +454,17 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
-
 					}
 				}
 
@@ -454,12 +476,14 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
@@ -475,12 +499,14 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
@@ -498,12 +524,14 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
@@ -520,16 +548,18 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
-						
+
 					}
 				}
 
@@ -542,16 +572,18 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
-						
+
 					}
 				}
 
@@ -564,16 +596,17 @@ public class EvolutionaryAlgoConnected {
 						// check movement of chain, check before fighter j not needed.Either they move
 						// in same direction -- not this fighter hit the border first -- or 0 possible
 						// check fighter behind j
-						if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-							// recalculate movement for all fighters
-							for (int k = j + 1; k < Main.CrewSize; k++) {
-								for (int l = i; l < Main.TimeInterval; l++) {
-									crew.getCrew().get(k).setChainIndex(l,
-											movementCalculator(crew.getCrew().get(k), l));
+						if (j < Main.CrewSize - 1) {
+							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+								// recalculate movement for all fighters
+								for (int k = j + 1; k < Main.CrewSize; k++) {
+									for (int l = i; l < Main.TimeInterval; l++) {
+										crew.getCrew().get(k).setChainIndex(l,
+												movementCalculator(crew.getCrew().get(k), l));
+									}
 								}
 							}
 						}
-						
 					}
 				}
 
@@ -589,7 +622,7 @@ public class EvolutionaryAlgoConnected {
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-
+					crew.setFitness(crew.getFitness() + 1);
 					break;
 				// go east
 				case 2:
@@ -598,6 +631,7 @@ public class EvolutionaryAlgoConnected {
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					crew.setFitness(crew.getFitness() + 1);
 					break;
 				// go south
 				case 3:
@@ -606,6 +640,7 @@ public class EvolutionaryAlgoConnected {
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					crew.setFitness(crew.getFitness() + 1);
 					break;
 				// go west
 				case 4:
@@ -614,20 +649,25 @@ public class EvolutionaryAlgoConnected {
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					crew.setFitness(crew.getFitness() + 1);
 					break;
 
 				}
 
-				// update fitness -- +1 for each unique value in defended vertices
-				HashSet<Integer> dummy = new HashSet();
-				// number of unique values -- add to set, size of set
-				for (int k = 0; k < defendedVertices.size(); k++) {
-					dummy.add(defendedVertices.get(k));
-				}
-				crew.setFitness(crew.getFitness() + dummy.size());
-				dummy.clear();
-
 			}
+
+			/*System.out.println("Size Defended: " + defendedVertices.size());
+			// update fitness -- +1 for each unique value in defended vertices
+			HashSet<Integer> dummy = new HashSet();
+			// number of unique values -- add to set, size of set
+			for (int k = 0; k < defendedVertices.size(); k++) {
+				dummy.add(defendedVertices.get(k));
+			}
+			System.out.println("Size Dummy: " + dummy.size());
+			System.out.println("Non - burning Vertices: " + nonBurningVertices.size());
+			crew.setFitness(crew.getFitness() + dummy.size());
+			dummy.clear();
+			*/
 
 			// expand fire
 
@@ -876,7 +916,7 @@ public class EvolutionaryAlgoConnected {
 
 	// check if movement for fighter 2 in timestep t is possible in Bezug auf linken
 	// nachbarn
-	//TODO: aufeinander laufen erlauben
+	// TODO: aufeinander laufen erlauben
 	private boolean movementPossible(ConnectedFireFighter fighter2, int timestep) {
 		boolean possible = false;
 
@@ -1235,17 +1275,17 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 0;
 					fighter2.setPositionIndex(9, timestep + 1);
 					return movement2;
-				
+
 				case 1:
 					movement2 = 1;
 					fighter2.setPositionIndex(1, timestep + 1);
 					return movement2;
-					
+
 				case 2:
 					movement2 = 2;
 					fighter2.setPositionIndex(3, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 3;
 					fighter2.setPositionIndex(5, timestep + 1);
@@ -1426,17 +1466,17 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 0;
 					fighter2.setPositionIndex(9, timestep + 1);
 					return movement2;
-				
+
 				case 1:
 					movement2 = 1;
 					fighter2.setPositionIndex(1, timestep + 1);
 					return movement2;
-					
+
 				case 2:
 					movement2 = 2;
 					fighter2.setPositionIndex(3, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 3;
 					fighter2.setPositionIndex(5, timestep + 1);
@@ -1601,17 +1641,17 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 0;
 					fighter2.setPositionIndex(9, timestep + 1);
 					return movement2;
-				
+
 				case 1:
 					movement2 = 1;
 					fighter2.setPositionIndex(1, timestep + 1);
 					return movement2;
-					
+
 				case 2:
 					movement2 = 2;
 					fighter2.setPositionIndex(3, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 3;
 					fighter2.setPositionIndex(5, timestep + 1);
@@ -1789,17 +1829,17 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 0;
 					fighter2.setPositionIndex(9, timestep + 1);
 					return movement2;
-				
+
 				case 1:
 					movement2 = 1;
 					fighter2.setPositionIndex(1, timestep + 1);
 					return movement2;
-					
+
 				case 2:
 					movement2 = 2;
 					fighter2.setPositionIndex(3, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 3;
 					fighter2.setPositionIndex(5, timestep + 1);
@@ -1884,7 +1924,7 @@ public class EvolutionaryAlgoConnected {
 					return movement2;
 				}
 			}
-		//fighter übereinander	
+			// fighter übereinander
 		case 9:
 			switch (movement1) {
 			// no movement fighter 1
@@ -1895,17 +1935,17 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 0;
 					fighter2.setPositionIndex(9, timestep + 1);
 					return movement2;
-				
+
 				case 1:
 					movement2 = 1;
 					fighter2.setPositionIndex(1, timestep + 1);
 					return movement2;
-					
+
 				case 2:
 					movement2 = 2;
 					fighter2.setPositionIndex(3, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 3;
 					fighter2.setPositionIndex(5, timestep + 1);
@@ -1935,7 +1975,7 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 2;
 					fighter2.setPositionIndex(4, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 4;
 					fighter2.setPositionIndex(6, timestep + 1);
@@ -1959,13 +1999,13 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 2;
 					fighter2.setPositionIndex(9, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 3;
 					fighter2.setPositionIndex(6, timestep + 1);
 					return movement2;
 				}
-			// figher 1 south
+				// figher 1 south
 			case 3:
 				temp = Main.rnd.nextInt(4);
 				switch (temp) {
@@ -1983,13 +2023,13 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 3;
 					fighter2.setPositionIndex(9, timestep + 1);
 					return movement2;
-					
+
 				case 3:
-					movement2 = 8;
-					fighter2.setPositionIndex(6, timestep + 1);
+					movement2 = 4;
+					fighter2.setPositionIndex(8, timestep + 1);
 					return movement2;
 				}
-			// fighter 1 west
+				// fighter 1 west
 			case 4:
 				temp = Main.rnd.nextInt(4);
 				switch (temp) {
@@ -2007,7 +2047,7 @@ public class EvolutionaryAlgoConnected {
 					movement2 = 3;
 					fighter2.setPositionIndex(4, timestep + 1);
 					return movement2;
-					
+
 				case 3:
 					movement2 = 4;
 					fighter2.setPositionIndex(9, timestep + 1);
@@ -2018,6 +2058,10 @@ public class EvolutionaryAlgoConnected {
 			break;
 		}
 		// nicht erreichbar, da überall return statements
+		System.out.println("fighter1 movement: " + movement1);
+		System.out.println("fighter2 position: " + position);
+		System.out.println("");
+		System.out.println("----------------------------");
 		return -1;
 
 	}
@@ -2151,5 +2195,23 @@ public class EvolutionaryAlgoConnected {
 	public void setPopulation(List<ConnectedFireFighterCrew> population) {
 		this.population = population;
 	}
+
+	public ConnectedFireFighterCrew getBestCrew() {
+		return bestCrew;
+	}
+
+	public void setBestCrew(ConnectedFireFighterCrew bestCrew) {
+		this.bestCrew = bestCrew;
+	}
+
+	public int[] getBestSetUp() {
+		return bestSetUp;
+	}
+
+	public void setBestSetUp(int[] bestSetUp) {
+		this.bestSetUp = bestSetUp;
+	}
+	
+	
 
 }

@@ -40,7 +40,7 @@ public class EvolutionaryAlgo {
 
 	}
 
-	public void evAlgo() {
+	public FireFighterCrew evAlgo() {
 		System.out.println("Start");
 		// stuff
 		int counter = 0;
@@ -135,6 +135,7 @@ public class EvolutionaryAlgo {
 			}
 			System.out.println("Fitness: " + maxFitness);
 		}
+		return bestCrew;
 
 	}
 
