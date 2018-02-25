@@ -14,7 +14,9 @@ import model.FireFighterCrew;
  *
  */
 public class EvolutionaryAlgoService extends Service<FireFighterCrew>{
+	private Main main;
 	EvolutionaryAlgo evAlgo = new EvolutionaryAlgo();
+	LayoutController controller;
 	
 	public void setEvAlgo(EvolutionaryAlgo evAlgo) {
 		this.evAlgo = evAlgo;
@@ -22,6 +24,14 @@ public class EvolutionaryAlgoService extends Service<FireFighterCrew>{
 	
 	public EvolutionaryAlgo getEvAlgo() {
 		return evAlgo;
+	}
+	
+	public void setMain(Main main) {
+		this.main = main;
+	}
+	
+	public void setController(LayoutController controller) {
+		this.controller = controller;
 	}
 
 	@Override
@@ -35,6 +45,7 @@ public class EvolutionaryAlgoService extends Service<FireFighterCrew>{
 			@Override
 			protected FireFighterCrew call() throws Exception {
 				FireFighterCrew bestCrew = new FireFighterCrew();
+				
 				bestCrew = _evAlgo.evAlgo();
 				
 				return bestCrew;
@@ -51,6 +62,7 @@ public class EvolutionaryAlgoService extends Service<FireFighterCrew>{
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				controller.setBestCrew(bestCrew);
 				
 			}
 			

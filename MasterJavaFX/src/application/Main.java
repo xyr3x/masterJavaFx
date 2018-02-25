@@ -18,7 +18,7 @@ public class Main extends Application {
 	public static int CrewID = 0;
 	public static int GridLength = 100;
 	public static int GridSize = GridLength * GridLength;
-	public static int TimeInterval = 15;
+	public static int TimeInterval = 30;
 	public static Random rnd = new Random(1337);
 
 	public static int CrewSize = 15;
@@ -28,6 +28,7 @@ public class Main extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 	EvolutionaryAlgo evAlgo = new EvolutionaryAlgo();
+	EvolutionaryAlgoService service = new EvolutionaryAlgoService();
 	
 	
 	
@@ -83,6 +84,7 @@ public class Main extends Application {
 			LayoutController controller = loader.getController();
 			controller.setMain(this);
 			controller.setEvAlgo(evAlgo);
+			service.setController(controller);
 
 			
 		} catch (IOException e) {
@@ -95,6 +97,7 @@ public class Main extends Application {
 		//dafür service aufrufen
 		EvolutionaryAlgoService service = new EvolutionaryAlgoService();
 		service.setEvAlgo(evAlgo);
+		service.setMain(this);
 		
 		
 		

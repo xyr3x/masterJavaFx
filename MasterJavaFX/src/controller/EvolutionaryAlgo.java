@@ -605,4 +605,19 @@ public class EvolutionaryAlgo {
 		System.out.println();
 	}
 
+	
+	//getter and setter
+	public FireFighterCrew getBestCrew() {
+		return bestCrew;
+	}
+
+	public void setBestCrew(FireFighterCrew bestCrew) {
+		this.bestCrew = bestCrew;
+	}
+	
+	
+	
+	
+	
+
 }
