@@ -176,6 +176,76 @@ public class LayoutController {
 
 	}
 
+	private void drawConnected(ConnectedFireFighterCrew crew) {
+		LongValue prevNanos = new LongValue(System.nanoTime());
+
+		drawLoop = new AnimationTimer() {
+
+			@Override
+			public void handle(long now) {
+
+				// calculate elapsed time
+				double elapsedTime = (now - prevNanos.value) / 1000000000.0;
+
+				// more than 1 second, draw next step
+				if (elapsedTime >= 0.33) {
+					prevNanos.value = now;
+					TimeStepLabel.setText(Integer.toString(timestep));
+					drawCrewConnected(crew);
+				}
+
+			}
+
+		};
+
+		int temp;
+		// draw initial setup
+		for (int i = 0; i < Main.CrewSize; i++) {
+			temp = crew.getCrew().get(i).getCurrentVertice();
+			grid.get(temp).setFill(Color.BLACK);
+		}
+
+		// start animaition
+		drawLoop.start();
+
+	}
+
+	private void drawCrewConnected(ConnectedFireFighterCrew crew) {
+		// timestep aktualisieren
+		if (timestep == Main.TimeInterval - 1) {
+			timestep = 0;
+			drawLoop.stop();
+
+			// TODO: abschluss"bild"
+
+			return;
+		} else {
+			timestep = timestep + 1;
+		}
+
+		// draw every Timestep
+		// set all rectangles to red
+		for (int i = 0; i < grid.size(); i++) {
+			grid.get(i).setFill(Color.RED);
+		}
+
+		// Draw defendedVertices
+		for (int i = 0; i < Main.CrewSize; i++) {
+			grid.get(crew.getDefendedVerticesIndex(timestep, i)).setFill(Color.BLACK);
+		}
+
+		int dummy;
+		// Draw nonBurningVertices
+		for (int i = 0; i < Main.CrewSize * Main.CrewSize; i++) {
+			dummy = crew.getNonBurningVerticesIndex(timestep, i);
+			if (!(dummy == 0)) {
+				grid.get(dummy).setFill(Color.WHITE);
+			}
+		}
+
+	}
+	
+	
 	private void draw(FireFighterCrew crew) {
 		LongValue prevNanos = new LongValue(System.nanoTime());
 
@@ -244,6 +314,7 @@ public class LayoutController {
 		}
 
 	}
+
 
 	// getter and setter
 	public FireFighterCrew getBestCrew() {

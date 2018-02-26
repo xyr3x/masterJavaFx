@@ -271,7 +271,7 @@ public class EvolutionaryAlgo {
 					for (int k = 0; k < Main.CrewSize; k++) {
 						if ((currentVertice + Main.GridLength) == crew.getCrew().get(k).getCurrentVertice()) {
 							crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
-							//defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
 							continue fighterloop;
 						}
 					}
@@ -289,6 +289,7 @@ public class EvolutionaryAlgo {
 					for (int k = 0; k < Main.CrewSize; k++) {
 						if ((currentVertice + 1) == crew.getCrew().get(k).getCurrentVertice()) {
 							crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
 							continue fighterloop;
 						}
 					}
@@ -306,6 +307,7 @@ public class EvolutionaryAlgo {
 					for (int k = 0; k < Main.CrewSize; k++) {
 						if ((currentVertice - Main.GridLength) == crew.getCrew().get(k).getCurrentVertice()) {
 							crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
 							continue fighterloop;
 						}
 					}
@@ -322,6 +324,7 @@ public class EvolutionaryAlgo {
 					for (int k = 0; k < Main.CrewSize; k++) {
 						if ((currentVertice - 1) == crew.getCrew().get(k).getCurrentVertice()) {
 							crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
+							defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
 							continue fighterloop;
 						}
 					}
