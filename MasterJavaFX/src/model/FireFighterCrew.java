@@ -18,9 +18,13 @@ public class FireFighterCrew implements Comparable<FireFighterCrew> {
 	//number of non burning vertices
 	private int Fitness = 0;
 	private List<FireFighter> crew = new ArrayList<FireFighter>();
-	private int[] bestSetup = new int[Main.CrewSize];
+	private int bestTimeStep;
 	private boolean changed = false;
 	private boolean newCrew = false;
+	//save the defended vertices of all timesteps
+	private int[][] defendedVertices = new int[Main.TimeInterval][Main.CrewSize];
+	//save the non burning vertices of all timesteps
+	private int[][] nonBurningVertices = new int[Main.TimeInterval][Main.CrewSize * Main.CrewSize];
 
 
 	//constructor
@@ -49,14 +53,6 @@ public class FireFighterCrew implements Comparable<FireFighterCrew> {
 		this.crew = crew;
 	}
 
-	public int[] getBestSetup(){
-		return bestSetup;
-	}
-
-	public void setBestSetup(int[] bestSetup){
-		this.bestSetup = bestSetup;
-	}
-
 	public boolean isChanged() {
 		return changed;
 	}
@@ -71,6 +67,46 @@ public class FireFighterCrew implements Comparable<FireFighterCrew> {
 
 	public void setNewCrew(boolean newCrew) {
 		this.newCrew = newCrew;
+	}
+		
+	public int getBestTimeStep() {
+		return bestTimeStep;
+	}
+
+	public void setBestTimeStep(int bestTimeStep) {
+		this.bestTimeStep = bestTimeStep;
+	}
+
+	public int[][] getDefendedVertices() {
+		return defendedVertices;
+	}
+	
+	public int getDefendedVerticesIndex(int index1, int index2) {
+		return defendedVertices[index1][index2];
+	}
+
+	public void setDefendedVertices(int[][] defendedVertices) {
+		this.defendedVertices = defendedVertices;
+	}
+	
+	public void setDefendedVerticesIndex(int value, int index1, int index2) {
+		defendedVertices[index1][index2] = value;
+	}
+
+	public int[][] getNonBurningVertices() {
+		return nonBurningVertices;
+	}
+	
+	public int getNonBurningVerticesIndex(int index1, int index2) {
+		return nonBurningVertices[index1][index2];
+	}
+
+	public void setNonBurningVertices(int[][] nonBurningVertices) {
+		this.nonBurningVertices = nonBurningVertices;
+	}
+	
+	public void setNonBurningVerticesIndex(int value, int index1, int index2) {
+		nonBurningVertices[index1][index2] = value;
 	}
 
 	@Override

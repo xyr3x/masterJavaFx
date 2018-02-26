@@ -5,6 +5,7 @@ import java.util.Random;
 
 import controller.DrawingToolGreedy;
 import controller.EvolutionaryAlgo;
+import controller.EvolutionaryAlgoConnected;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -18,7 +19,7 @@ public class Main extends Application {
 	public static int CrewID = 0;
 	public static int GridLength = 100;
 	public static int GridSize = GridLength * GridLength;
-	public static int TimeInterval = 30;
+	public static int TimeInterval = 80;
 	public static Random rnd = new Random(1337);
 
 	public static int CrewSize = 15;
@@ -28,7 +29,7 @@ public class Main extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 	EvolutionaryAlgo evAlgo = new EvolutionaryAlgo();
-	EvolutionaryAlgoService service = new EvolutionaryAlgoService();
+	EvolutionaryAlgoConnected evAlgoConnected = new EvolutionaryAlgoConnected();
 	
 	
 	
@@ -40,7 +41,7 @@ public class Main extends Application {
 
 			initRootLayout();
 			showLayout();
-			startAlgo();
+			//startAlgo();
 			
 
 			
@@ -84,7 +85,6 @@ public class Main extends Application {
 			LayoutController controller = loader.getController();
 			controller.setMain(this);
 			controller.setEvAlgo(evAlgo);
-			service.setController(controller);
 
 			
 		} catch (IOException e) {
@@ -92,7 +92,7 @@ public class Main extends Application {
 		}
 	}
 	
-	private void startAlgo(){		
+	/*private void startAlgo(){		
 		//evolutionaryAlgo ausführen
 		//dafür service aufrufen
 		EvolutionaryAlgoService service = new EvolutionaryAlgoService();
@@ -102,7 +102,7 @@ public class Main extends Application {
 		
 		
 		service.start();
-	}
+	}*/
 	
 	public static void main(String[] args) {
 		launch(args);

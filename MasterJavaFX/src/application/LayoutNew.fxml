@@ -10,13 +10,13 @@
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.LayoutController">
    <children>
-      <ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <content>
             <Pane fx:id="drawPane" prefHeight="200.0" prefWidth="200.0" />
          </content></ScrollPane>
-      <HBox layoutX="10.0" layoutY="575.0" prefHeight="60.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+      <HBox layoutX="10.0" layoutY="575.0" prefHeight="60.0" spacing="50.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
          <children>
-            <VBox>
+            <VBox spacing="10.0">
                <children>
                   <HBox layoutY="578.0" prefHeight="60.0" prefWidth="601.0" spacing="40.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="578.0">
                      <children>
@@ -46,11 +46,19 @@
                   </HBox>
                </children>
             </VBox>
-            <Button fx:id="StartButton" layoutX="254.0" layoutY="574.0" mnemonicParsing="false" onAction="#handleButton" prefHeight="25.0" prefWidth="67.0" text="Start" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="15.0">
+            <VBox spacing="5.0">
+               <children>
+                  <Button fx:id="StartButton" layoutX="254.0" layoutY="574.0" mnemonicParsing="false" onAction="#handleButtonAnimate" prefHeight="25.0" prefWidth="67.0" text="Animate" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="15.0">
+                     <HBox.margin>
+                        <Insets left="70.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#handleButtonCalculate" prefWidth="67.0" text="Calculate" />
+               </children>
                <HBox.margin>
-                  <Insets left="70.0" />
+                  <Insets />
                </HBox.margin>
-            </Button>
+            </VBox>
          </children>
       </HBox>
    </children>

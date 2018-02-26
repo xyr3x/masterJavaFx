@@ -25,7 +25,7 @@ public class EvolutionaryAlgoConnected {
 
 	}
 
-	public void evAlgo() {
+	public ConnectedFireFighterCrew evAlgo() {
 		System.out.println("Start");
 		// stuff
 		int counter = 0;
@@ -145,6 +145,7 @@ public class EvolutionaryAlgoConnected {
 			}
 			System.out.println("Fitness: " + maxFitness);
 		}
+		return bestCrew;
 
 	}
 
