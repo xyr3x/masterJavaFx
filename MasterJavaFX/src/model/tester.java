@@ -74,7 +74,7 @@ public class tester {
 		
 		for(int i = 0; i < Main.CrewSize - 4; i++) {
 			ConnectedFireFighter fighter = new ConnectedFireFighter();
-			fighter.setStartVertice(start + i + 1 -1000);
+			fighter.setStartVertice(start + i + 1 +1000);
 			fighter.setCurrentVertice(fighter.getStartVertice());
 			
 			int[] chain = new int[Main.TimeInterval];
