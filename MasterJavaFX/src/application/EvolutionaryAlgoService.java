@@ -11,7 +11,7 @@ import model.FireFighterCrew;
 
 /**
  * @author Moritz
- *
+ *	Service class to execute evolutionary Algo in another thread
  */
 public class EvolutionaryAlgoService extends Service<FireFighterCrew>{
 	private Main main;
@@ -35,9 +35,8 @@ public class EvolutionaryAlgoService extends Service<FireFighterCrew>{
 	}
 
 	@Override
-	protected Task createTask() {
+	protected Task<FireFighterCrew> createTask() {
 		// TODO Auto-generated method stub
-		System.out.println("Task läuft");
 		final EvolutionaryAlgo _evAlgo = getEvAlgo();
 		
 		return new Task<FireFighterCrew>() {

@@ -15,7 +15,7 @@ import application.Main;
 public class ConnectedFireFighterCrew implements Comparable<ConnectedFireFighterCrew> {
 	private int ID;
 	// number of non burning vertices
-	private int Fitness = 0;
+	private int Fitness = Main.CrewSize;
 	private List<ConnectedFireFighter> crew = new ArrayList<ConnectedFireFighter>();
 	private int bestTimeStep;
 	private boolean changed = false;

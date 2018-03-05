@@ -6,6 +6,10 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import model.ConnectedFireFighterCrew;
 
+/**
+ * @author Moritz
+ *	Service class to execute connected evolutionary Algo in another thread
+ */
 public class EvolutionaryAlgoConnectedService extends Service<ConnectedFireFighterCrew>{
 	private Main main;
 	EvolutionaryAlgoConnected evAlgo = new EvolutionaryAlgoConnected();
@@ -27,19 +31,15 @@ public class EvolutionaryAlgoConnectedService extends Service<ConnectedFireFight
 		this.controller = controller;
 	}
 
-	protected Task createTask() {
+	protected Task<ConnectedFireFighterCrew> createTask() {
 		// TODO Auto-generated method stub
-		System.out.println("Task läuft");
 		final EvolutionaryAlgoConnected _evAlgo = getEvAlgo();
-		
 		return new Task<ConnectedFireFighterCrew>() {
 
 			@Override
 			protected ConnectedFireFighterCrew call() throws Exception {
 				ConnectedFireFighterCrew bestCrew = new ConnectedFireFighterCrew();
-				
 				bestCrew = _evAlgo.evAlgo();
-				
 				return bestCrew;
 			}
 			

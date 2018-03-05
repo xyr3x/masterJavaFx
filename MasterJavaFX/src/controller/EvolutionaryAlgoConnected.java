@@ -3,9 +3,12 @@ package controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import application.Main;
 import model.*;
@@ -15,8 +18,8 @@ public class EvolutionaryAlgoConnected {
 	private boolean fighterAtBorder = false;
 
 	private int maxFitness = 0;
-	//private int optimum = Main.CrewSize + 100;
-	private int optimum = 89;
+	// private int optimum = Main.CrewSize + 100;
+	private int optimum = 39;
 	private ConnectedFireFighterCrew bestCrew = new ConnectedFireFighterCrew();
 	private int[] bestSetUp = new int[Main.CrewSize];
 
@@ -65,15 +68,17 @@ public class EvolutionaryAlgoConnected {
 				// recombine parentcrew 1 and parentcrew 2 s.t. every kth
 				// new fighter is one point crossover of the kth fighter of the
 				// parent crews
-				//first fighter
-				//TODO: Fighter connecten
+				// first fighter
+				// TODO: Fighter connecten
 				ConnectedFireFighter fighter1 = new ConnectedFireFighter();
+				fighter1.setStartVertice(population.get(parent1).getCrew().get(0).getStartVertice());
+				fighter1.setCurrentVertice(fighter1.getStartVertice());
 				int chain1[] = new int[Main.TimeInterval];
 				for (int k = 0; k < crossOver; k++) {
 					chain1[k] = population.get(parent2).getCrew().get(0).getChainIndex(k);
 				}
 				crew.getCrew().add(fighter1);
-				
+
 				for (int j = 1; j < Main.CrewSize; j++) {
 					int chain[] = new int[Main.TimeInterval];
 					ConnectedFireFighter fighter = new ConnectedFireFighter();
@@ -403,7 +408,7 @@ public class EvolutionaryAlgoConnected {
 	// calculate fitness -- possible to move fighters at one point
 	public void calculateFitness(ConnectedFireFighterCrew crew) {
 		// vertices that do not burn
-		List<Integer> nonBurningVertices = new ArrayList<>();
+		Set<Integer> nonBurningVertices = new LinkedHashSet<>();
 		// Vertices of the last timestep
 		List<Integer> latestVertices = new ArrayList<>();
 		// defended vertices
@@ -426,90 +431,131 @@ public class EvolutionaryAlgoConnected {
 				// GridLength^2 - 1
 				if (currentVertice == 0 + Main.GridLength + 1) {
 					if (tempDirection == 3 || tempDirection == 4) {
-						fighterAtBorder = true;// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
-						}
+						// shift grid and reset
+						crew.shiftXPositive();
+						crew.shiftYPositive();
+						latestVertices.clear();
+						defendedVertices.clear();
 
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// x positive
+							shiftList.add(k.intValue() + (Main.GridLength / 2));
+							// y positive
+							shiftList.add(k.intValue() + (Main.GridLength * (Main.GridLength / 2)));
+						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+
+						// reset timer
+						j = j - 1;
+						continue timeloop;
+
+						/*
+						 * fighterAtBorder = true;// fighter stops
+						 * 
+						 * crew.getCrew().get(j).setChainIndex(i, 0); // check movement of chain, check
+						 * before fighter j not needed.Either they move // in same direction -- not this
+						 * fighter hit the border first -- or 0 possible // check fighter behind j if (j
+						 * < Main.CrewSize - 1) { if (!movementPossible(crew.getCrew().get(j + 1), i)) {
+						 * // recalculate movement for all fighters for (int k = j + 1; k <
+						 * Main.CrewSize; k++) { for (int l = i; l < Main.TimeInterval; l++) {
+						 * crew.getCrew().get(k).setChainIndex(l,
+						 * movementCalculator(crew.getCrew().get(k), l)); } } } }
+						 */
 					}
 				}
 
 				if (currentVertice == Main.GridLength + Main.GridLength - 1) {
 					if (tempDirection == 2 || tempDirection == 3) {
-						fighterAtBorder = true;
-						// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
+						// shift grid and reset
+						crew.shiftXNegative();
+						crew.shiftYPositive();
+						latestVertices.clear();
+						defendedVertices.clear();
+
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// x negative
+							shiftList.add(k.intValue() - (Main.GridLength / 2));
+							// y positive
+							shiftList.add(k.intValue() + (Main.GridLength * (Main.GridLength / 2)));
 						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+						// reset timer
+						j = j - 1;
+						continue timeloop;
+
 					}
 				}
 
 				if (currentVertice == (Main.GridSize - Main.GridLength - Main.GridLength + 1)) {
 					if (tempDirection == 1 || tempDirection == 4) {
-						fighterAtBorder = true;
-						// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
+						// shift grid and reset
+						crew.shiftXPositive();
+						crew.shiftYNegative();
+						latestVertices.clear();
+						defendedVertices.clear();
+
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// x positive
+							shiftList.add(k.intValue() + (Main.GridLength / 2));
+							// y negative
+							shiftList.add(k.intValue() - (Main.GridLength * (Main.GridLength / 2)));
 						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+
+						// reset timer
+						j = j - 1;
+						continue timeloop;
 
 					}
 				}
 
 				if (currentVertice == (Main.GridSize - 1 - Main.GridLength - 1)) {
 					if (tempDirection == 1 || tempDirection == 2) {
-						fighterAtBorder = true;
-						// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
+						// shift grid and reset
+						crew.shiftXNegative();
+						crew.shiftYNegative();
+						latestVertices.clear();
+						defendedVertices.clear();
+
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// x negative
+							shiftList.add(k.intValue() - (Main.GridLength / 2));
+							// y negative
+							shiftList.add(k.intValue() - (Main.GridLength * (Main.GridLength / 2)));
 						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+
+						// reset timer
+						j = j - 1;
+						continue timeloop;
 
 					}
 				}
@@ -518,23 +564,27 @@ public class EvolutionaryAlgoConnected {
 				// unten
 				if (currentVertice < Main.GridLength + Main.GridLength) {
 					if (tempDirection == 3) {
-						fighterAtBorder = true;
-						// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
+						// shift grid and reset
+						crew.shiftYPositive();
+						latestVertices.clear();
+						defendedVertices.clear();
+
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// y positive
+							shiftList.add(k.intValue() + (Main.GridLength * (Main.GridLength / 2)));
 						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+
+						// reset timer
+						j = j - 1;
+						continue timeloop;
 
 					}
 				}
@@ -542,23 +592,27 @@ public class EvolutionaryAlgoConnected {
 				// oben
 				if (currentVertice > (Main.GridSize - Main.GridLength - Main.GridLength)) {
 					if (tempDirection == 1) {
-						fighterAtBorder = true;
-						// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
+						// shift grid and reset
+						crew.shiftYNegative();
+						latestVertices.clear();
+						defendedVertices.clear();
+
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// y negative
+							shiftList.add(k.intValue() - (Main.GridLength * (Main.GridLength / 2)));
 						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+
+						// reset timer
+						j = j - 1;
+						continue timeloop;
 
 					}
 				}
@@ -566,23 +620,27 @@ public class EvolutionaryAlgoConnected {
 				// links
 				if ((currentVertice % Main.GridLength) == 1) {
 					if (tempDirection == 4) {
-						fighterAtBorder = true;
-						// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
+						// shift grid and reset
+						crew.shiftXPositive();
+						latestVertices.clear();
+						defendedVertices.clear();
+
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// x positive
+							shiftList.add(k.intValue() + (Main.GridLength / 2));
 						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+
+						// reset timer
+						j = j - 1;
+						continue timeloop;
 
 					}
 				}
@@ -590,30 +648,35 @@ public class EvolutionaryAlgoConnected {
 				// rechts
 				if ((currentVertice % Main.GridLength) == (Main.GridLength - 2)) {
 					if (tempDirection == 2) {
-						fighterAtBorder = true;
-						// fighter stops
-						crew.getCrew().get(j).setChainIndex(i, 0);
-						// check movement of chain, check before fighter j not needed.Either they move
-						// in same direction -- not this fighter hit the border first -- or 0 possible
-						// check fighter behind j
-						if (j < Main.CrewSize - 1) {
-							if (!movementPossible(crew.getCrew().get(j + 1), i)) {
-								// recalculate movement for all fighters
-								for (int k = j + 1; k < Main.CrewSize; k++) {
-									for (int l = i; l < Main.TimeInterval; l++) {
-										crew.getCrew().get(k).setChainIndex(l,
-												movementCalculator(crew.getCrew().get(k), l));
-									}
-								}
-							}
+						// shift grid and reset
+						crew.shiftXNegative();
+						latestVertices.clear();
+						defendedVertices.clear();
+
+						// update non burning vertices
+						List<Integer> shiftList = new ArrayList<>();
+						for (Integer k : nonBurningVertices) {
+							// x negative
+							shiftList.add(k.intValue() - (Main.GridLength / 2));
 						}
+						nonBurningVertices.clear();
+
+						for (Integer k : shiftList) {
+							nonBurningVertices.add(k);
+						}
+						shiftList.clear();
+						// reset timer
+						j = j - 1;
+						continue timeloop;
+
 					}
 				}
 
 				switch (tempDirection) {
 				// dont move
 				case 0:
-					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					defendedVertices.add(currentVertice);
+					crew.setDefendedVerticesIndex(currentVertice, i, j);
 					break;
 				// go north
 				case 1:
@@ -621,11 +684,15 @@ public class EvolutionaryAlgoConnected {
 					crew.getCrew().get(j).setCurrentVertice(currentVertice + Main.GridLength);
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
+					//if vertice already cleared/defended fitness doesnt increase
+					if (!nonBurningVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+						if (!defendedVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+							tempFitness += 1;
+						}
+					}
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-					tempFitness += 1;
-
 					crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
-					
+
 					break;
 				// go east
 				case 2:
@@ -633,9 +700,13 @@ public class EvolutionaryAlgoConnected {
 					crew.getCrew().get(j).setCurrentVertice(currentVertice + 1);
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
+					//if vertice already cleared/defended fitness doesnt increase
+					if (!nonBurningVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+						if (!defendedVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+							tempFitness += 1;
+						}
+					}
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-					tempFitness += 1;
-
 					crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
 					break;
 				// go south
@@ -644,9 +715,13 @@ public class EvolutionaryAlgoConnected {
 					crew.getCrew().get(j).setCurrentVertice(currentVertice - Main.GridLength);
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
+					//if vertice already cleared/defended fitness doesnt increase
+					if (!nonBurningVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+						if (!defendedVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+							tempFitness += 1;
+						}
+					}
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-					tempFitness += 1;
-
 					crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
 					break;
 				// go west
@@ -655,8 +730,13 @@ public class EvolutionaryAlgoConnected {
 					crew.getCrew().get(j).setCurrentVertice(currentVertice - 1);
 					nonBurningVertices.add(currentVertice);
 					latestVertices.add(currentVertice);
+					//if vertice already cleared/defended fitness doesnt increase
+					if (!nonBurningVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+						if (!defendedVertices.contains((Integer) crew.getCrew().get(j).getCurrentVertice())) {
+							tempFitness += 1;
+						}
+					}
 					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
-					tempFitness += 1;
 					crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
 					break;
 
@@ -664,112 +744,144 @@ public class EvolutionaryAlgoConnected {
 
 			}
 
-			/*System.out.println("Size Defended: " + defendedVertices.size());
-			// update fitness -- +1 for each unique value in defended vertices
-			HashSet<Integer> dummy = new HashSet();
-			// number of unique values -- add to set, size of set
-			for (int k = 0; k < defendedVertices.size(); k++) {
-				dummy.add(defendedVertices.get(k));
+			/*
+			 * System.out.println("Size Defended: " + defendedVertices.size()); // update
+			 * fitness -- +1 for each unique value in defended vertices HashSet<Integer>
+			 * dummy = new HashSet(); // number of unique values -- add to set, size of set
+			 * for (int k = 0; k < defendedVertices.size(); k++) {
+			 * dummy.add(defendedVertices.get(k)); } System.out.println("Size Dummy: " +
+			 * dummy.size()); System.out.println("Non - burning Vertices: " +
+			 * nonBurningVertices.size()); crew.setFitness(crew.getFitness() +
+			 * dummy.size()); dummy.clear();
+			 */
+
+			// expand fire
+
+			// all non-burning vertices
+			// save vertices to remove in List, to avoid exception
+			List<Integer> removeList = new ArrayList<>();
+			/*
+			 * burningLoop: for (int k = 0; k < latestVertices.size(); k++) { //
+			 * listPrinter(nonBurningVertices);
+			 * 
+			 * // check if latestvertices has burning neighbours __ kein // Randfall! --
+			 * Randfälle bereits abgefangen if (!nonBurningVertices.contains((Integer)
+			 * (latestVertices.get(k).intValue() - 1))) { if
+			 * (!defendedVertices.contains((Integer) (latestVertices.get(k).intValue() -
+			 * 1))) { if (latestVertices.get(k).intValue() == 5250) {
+			 * System.out.println("Ich brenne: " + (latestVertices.get(k).intValue() - 1));
+			 * for (Integer l : defendedVertices) { System.out.print(l.intValue() + "|"); }
+			 * System.out.println(); } removeList.add(latestVertices.get(k)); tempFitness -=
+			 * 1; continue burningLoop; } }
+			 * 
+			 * if (!nonBurningVertices.contains((Integer) (latestVertices.get(k).intValue()
+			 * + 1))) { if (!defendedVertices.contains((Integer)
+			 * (latestVertices.get(k).intValue() + 1))) { if
+			 * (latestVertices.get(k).intValue() == 5250) {
+			 * System.out.println("Ich brenne: " + (latestVertices.get(k).intValue() + 1));
+			 * } removeList.add(latestVertices.get(k)); tempFitness -= 1; continue
+			 * burningLoop; } } if (!nonBurningVertices.contains((Integer)
+			 * (latestVertices.get(k).intValue() + Main.GridLength))) { if
+			 * (!defendedVertices.contains((Integer) (latestVertices.get(k).intValue() +
+			 * Main.GridLength))) { if (latestVertices.get(k).intValue() == 5250) {
+			 * System.out.println("Ich brenne: " + (latestVertices.get(k).intValue() +
+			 * Main.GridLength)); } removeList.add(latestVertices.get(k)); tempFitness -= 1;
+			 * continue burningLoop; } }
+			 * 
+			 * if (!nonBurningVertices.contains((Integer) (latestVertices.get(k).intValue()
+			 * - Main.GridLength))) { if (!defendedVertices.contains((Integer)
+			 * (latestVertices.get(k).intValue() - Main.GridLength))) { if
+			 * (latestVertices.get(k).intValue() == 5250) {
+			 * System.out.println("Ich brenne: " + (latestVertices.get(k).intValue() -
+			 * Main.GridLength)); } removeList.add(latestVertices.get(k)); tempFitness -= 1;
+			 * continue burningLoop; } }
+			 * 
+			 * }
+			 */
+
+			// all remaining non burning vertices
+			for (Integer k : nonBurningVertices) {
+				if (!nonBurningVertices.contains((Integer) (k.intValue() - 1))) {
+					if (!defendedVertices.contains((Integer) (k.intValue() - 1))) {
+						if (k.intValue() == 5250) {
+							System.out.println("Du brenne: " + (k.intValue() - 1));
+						}
+						removeList.add(k);
+						tempFitness -= 1;
+						continue;
+					}
+				}
+
+				if (!nonBurningVertices.contains((Integer) (k.intValue() + 1))) {
+					if (!defendedVertices.contains((Integer) (k.intValue() + 1))) {
+						if (k.intValue() == 5250) {
+							System.out.println("Du brenne: " + (k.intValue() + 1));
+						}
+						removeList.add(k);
+						tempFitness -= 1;
+						continue;
+					}
+				}
+				if (!nonBurningVertices.contains((Integer) (k.intValue() + Main.GridLength))) {
+					if (!defendedVertices.contains((Integer) (k.intValue() + Main.GridLength))) {
+						if (k.intValue() == 5250) {
+							System.out.println("Du brenne: " + (k.intValue() + Main.GridLength));
+						}
+						removeList.add(k);
+						tempFitness -= 1;
+						continue;
+					}
+				}
+
+				if (!nonBurningVertices.contains((Integer) (k.intValue() - Main.GridLength))) {
+					if (!defendedVertices.contains((Integer) (k.intValue() - Main.GridLength))) {
+						if (k.intValue() == 5250) {
+							System.out.println("Du brenne: " + (k.intValue() - Main.GridLength));
+						}
+						removeList.add(k);
+						tempFitness -= 1;
+						continue;
+					}
+				}
+
 			}
-			System.out.println("Size Dummy: " + dummy.size());
-			System.out.println("Non - burning Vertices: " + nonBurningVertices.size());
-			crew.setFitness(crew.getFitness() + dummy.size());
-			dummy.clear();
-			*/
+			// remove objects from list
+			System.out.print("RemoveList: ");
+			for (Integer k : removeList) {
+				System.out.print(k.intValue() + "|");
+			}
+			System.out.println();
 
-		// expand fire
-		
-					//all non-burning vertices
-					for (int k = 0; k < latestVertices.size(); k++) {
-						// listPrinter(nonBurningVertices);
-						
-						// check if latestvertices has burning neighbours __ kein
-						// Randfall! -- Randfälle bereits abgefangen
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - 1))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() - 1))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								tempFitness -= 1;
-								continue;
-							}
-						}
+			for (Integer k : removeList) {
+				nonBurningVertices.remove(k);
+			}
 
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + 1))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() + 1))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								tempFitness -= 1;
-								continue;
-							}
-						}
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() + Main.GridLength))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								tempFitness -= 1;
-								continue;
-							}
-						}
-
-						if (!nonBurningVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-							if (!defendedVertices.contains((latestVertices.get(k).intValue() - Main.GridLength))) {
-								nonBurningVertices.remove(latestVertices.get(k));
-								tempFitness -= 1;
-								continue;
-							}
-						}
-
-					}
-					
-					//all remaining non burning vertices
-					for (int k = 0; k < nonBurningVertices.size(); k++) {
-						if (!nonBurningVertices.contains((nonBurningVertices.get(k).intValue() - 1))) {
-							if (!defendedVertices.contains((nonBurningVertices.get(k).intValue() - 1))) {
-								nonBurningVertices.remove(k);
-								tempFitness -= 1;
-								continue;
-							}
-						}
-
-						if (!nonBurningVertices.contains((nonBurningVertices.get(k).intValue() + 1))) {
-							if (!defendedVertices.contains((nonBurningVertices.get(k).intValue() + 1))) {
-								nonBurningVertices.remove(k);
-								tempFitness -= 1;
-								continue;
-							}
-						}
-						if (!nonBurningVertices.contains((nonBurningVertices.get(k).intValue() + Main.GridLength))) {
-							if (!defendedVertices.contains((nonBurningVertices.get(k).intValue() + Main.GridLength))) {
-								nonBurningVertices.remove(k);
-								tempFitness -= 1;
-								continue;
-							}
-						}
-
-						if (!nonBurningVertices.contains((nonBurningVertices.get(k).intValue() - Main.GridLength))) {
-							if (!defendedVertices.contains((nonBurningVertices.get(k).intValue() - Main.GridLength))) {
-								nonBurningVertices.remove(k);
-								tempFitness -= 1;
-								continue;
-							}
-						}			
-
-					}
-
-					// save best fitness
-					if (crew.getFitness() < tempFitness) {
-						System.out.println("New Fitness: " + nonBurningVertices.size());
-						crew.setFitness(tempFitness);
-						crew.setBestTimeStep(i);
-					}
+			System.out.println("TempFitness: " + tempFitness);
+			// save best fitness
+			if (crew.getFitness() < tempFitness) {
+				// System.out.println("New Fitness: " + nonBurningVertices.size());
+				crew.setFitness(tempFitness);
+				crew.setBestTimeStep(i);
+			}
 
 			latestVertices.clear();
 			defendedVertices.clear();
-			
-			//save non burning vertices in step i
-			Integer[] dummy = nonBurningVertices.toArray(new Integer[nonBurningVertices.size()]);	
-			for(int k = 0; k < Main.CrewSize; k++) {
-				for (int l = 0; l < nonBurningVertices.size(); l++) {
-					crew.setNonBurningVerticesIndex(dummy[l].intValue(), i, k);
-				}
+
+			// save non burning vertices in step i
+			int l = 0;
+			System.out.print("NonBurning: ");
+			for (Integer k : nonBurningVertices) {
+				crew.setNonBurningVerticesIndex(k.intValue(), i, l);
+				System.out.print(k.intValue() + "|");
+				l++;
 			}
+			System.out.println();
+
+			/*
+			 * for (int l = 0; l < nonBurningVertices.size(); l++) {
+			 * System.out.print(nonBurningVertices.get(l).intValue() + "|"); }
+			 * System.out.println();
+			 */
 		}
 		nonBurningVertices.clear();
 	}
@@ -2073,7 +2185,5 @@ public class EvolutionaryAlgoConnected {
 	public void setBestSetUp(int[] bestSetUp) {
 		this.bestSetUp = bestSetUp;
 	}
-	
-	
 
 }

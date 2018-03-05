@@ -263,7 +263,7 @@ public class EvolutionaryAlgo {
 				// dont move
 				case 0:
 					crew.setDefendedVerticesIndex(crew.getCrew().get(j).getCurrentVertice(), i, j);
-					//defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
+					defendedVertices.add(crew.getCrew().get(j).getCurrentVertice());
 					break;
 				// go north
 				case 1:
