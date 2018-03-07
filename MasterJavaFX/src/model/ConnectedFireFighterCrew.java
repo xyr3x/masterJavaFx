@@ -16,6 +16,7 @@ public class ConnectedFireFighterCrew implements Comparable<ConnectedFireFighter
 	private int ID;
 	// number of non burning vertices
 	private int Fitness = Main.CrewSize;
+	private int maxNonBurningVertices;
 	private List<ConnectedFireFighter> crew = new ArrayList<ConnectedFireFighter>();
 	private int bestTimeStep;
 	private boolean changed = false;
@@ -111,8 +112,15 @@ public class ConnectedFireFighterCrew implements Comparable<ConnectedFireFighter
 	
 	public void setNonBurningVerticesIndex(int value, int index1, int index2) {
 		nonBurningVertices[index1][index2] = value;
+	}	
+
+	public int getMaxNonBurningVertices() {
+		return maxNonBurningVertices;
 	}
 
+	public void setMaxNonBurningVertices(int maxNonBurningVertices) {
+		this.maxNonBurningVertices = maxNonBurningVertices;
+	}
 
 	// shifts for the grid
 	// shift in x direction -- half of the grid

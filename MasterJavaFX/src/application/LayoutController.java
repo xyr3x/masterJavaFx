@@ -136,7 +136,7 @@ public class LayoutController {
 		}
 		// start random or connected ev Algo
 		if (crewBoxIndex == 0) {
-			FireFighterCrew shownCrew = evAlgo.getPopulation().get(currentCrew);
+			FireFighterCrew shownCrew = evAlgo.getBestCrew();
 			draw(shownCrew);
 			CrewLabel.setText(Integer.toString(shownCrew.getID()));
 			FitnessLabel.setText(Integer.toString(shownCrew.getFitness()));
@@ -144,7 +144,7 @@ public class LayoutController {
 
 		// connected
 		if (crewBoxIndex == 1) {
-			ConnectedFireFighterCrew shownCrew = evAlgoConnected.getPopulation().get(currentCrew);
+			ConnectedFireFighterCrew shownCrew = evAlgoConnected.getBestCrew();
 			drawConnected(shownCrew);
 			CrewLabel.setText(Integer.toString(shownCrew.getID()));
 			FitnessLabel.setText(Integer.toString(shownCrew.getFitness()));
@@ -188,7 +188,7 @@ public class LayoutController {
 				double elapsedTime = (now - prevNanos.value) / 1000000000.0;
 
 				// more than 1 second, draw next step
-				if (elapsedTime >= 0.33) {
+				if (elapsedTime >= 7.5) {
 					prevNanos.value = now;
 					TimeStepLabel.setText(Integer.toString(timestep));
 					drawCrewConnected(crew);
@@ -229,11 +229,6 @@ public class LayoutController {
 			grid.get(i).setFill(Color.RED);
 		}
 
-		// Draw defendedVertices
-		for (int i = 0; i < Main.CrewSize; i++) {
-			grid.get(crew.getDefendedVerticesIndex(timestep, i)).setFill(Color.BLACK);
-		}
-
 		int dummy;
 		// Draw nonBurningVertices
 		for (int i = 0; i < Main.CrewSize * Main.CrewSize; i++) {
@@ -243,9 +238,13 @@ public class LayoutController {
 			}
 		}
 
+		// Draw defendedVertices
+		for (int i = 0; i < Main.CrewSize; i++) {
+			grid.get(crew.getDefendedVerticesIndex(timestep, i)).setFill(Color.BLACK);
+		}
+
 	}
-	
-	
+
 	private void draw(FireFighterCrew crew) {
 		LongValue prevNanos = new LongValue(System.nanoTime());
 
@@ -299,11 +298,6 @@ public class LayoutController {
 			grid.get(i).setFill(Color.RED);
 		}
 
-		// Draw defendedVertices
-		for (int i = 0; i < Main.CrewSize; i++) {
-			grid.get(crew.getDefendedVerticesIndex(timestep, i)).setFill(Color.BLACK);
-		}
-
 		int dummy;
 		// Draw nonBurningVertices
 		for (int i = 0; i < Main.CrewSize * Main.CrewSize; i++) {
@@ -313,8 +307,12 @@ public class LayoutController {
 			}
 		}
 
-	}
+		// Draw defendedVertices
+		for (int i = 0; i < Main.CrewSize; i++) {
+			grid.get(crew.getDefendedVerticesIndex(timestep, i)).setFill(Color.BLACK);
+		}
 
+	}
 
 	// getter and setter
 	public FireFighterCrew getBestCrew() {

@@ -25,7 +25,7 @@ public class Main extends Application {
 	public static int CrewSize = 15;
 	public static int PopulationSize = 100;
 	public static int RecombinationSize = PopulationSize / 2;
-	public static int MutationProbability = 0;
+	public static int MutationProbability = 10;
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 	EvolutionaryAlgo evAlgo = new EvolutionaryAlgo();
