@@ -22,7 +22,7 @@ public class Main extends Application {
 	public static int TimeInterval = 20;
 	public static Random rnd = new Random(1337);
 
-	public static int CrewSize = 15;
+	public static int CrewSize = 16;
 	public static int PopulationSize = 100;
 	public static int RecombinationSize = PopulationSize / 2;
 	public static int MutationProbability = 10;

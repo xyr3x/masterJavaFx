@@ -17,8 +17,10 @@ public class FireFighterCrew implements Comparable<FireFighterCrew> {
 	private int ID;
 	//number of non burning vertices
 	private int Fitness = 0;
+	private int maxNonBurningVertices;
 	private List<FireFighter> crew = new ArrayList<FireFighter>();
 	private int bestTimeStep;
+	private int generation;
 	private boolean changed = false;
 	private boolean newCrew = false;
 	//save the defended vertices of all timesteps
@@ -76,6 +78,14 @@ public class FireFighterCrew implements Comparable<FireFighterCrew> {
 	public void setBestTimeStep(int bestTimeStep) {
 		this.bestTimeStep = bestTimeStep;
 	}
+	
+	public int getGeneration() {
+		return generation;
+	}
+
+	public void setGeneration(int generation) {
+		this.generation = generation;
+	}
 
 	public int[][] getDefendedVertices() {
 		return defendedVertices;
@@ -107,6 +117,14 @@ public class FireFighterCrew implements Comparable<FireFighterCrew> {
 	
 	public void setNonBurningVerticesIndex(int value, int index1, int index2) {
 		nonBurningVertices[index1][index2] = value;
+	}
+	
+	public int getMaxNonBurningVertices() {
+		return maxNonBurningVertices;
+	}
+
+	public void setMaxNonBurningVertices(int maxNonBurningVertices) {
+		this.maxNonBurningVertices = maxNonBurningVertices;
 	}
 
 	@Override

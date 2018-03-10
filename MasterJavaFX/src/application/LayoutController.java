@@ -140,6 +140,7 @@ public class LayoutController {
 			draw(shownCrew);
 			CrewLabel.setText(Integer.toString(shownCrew.getID()));
 			FitnessLabel.setText(Integer.toString(shownCrew.getFitness()));
+			GenerationLabel.setText(Integer.toString(shownCrew.getGeneration()));
 		}
 
 		// connected
@@ -148,6 +149,7 @@ public class LayoutController {
 			drawConnected(shownCrew);
 			CrewLabel.setText(Integer.toString(shownCrew.getID()));
 			FitnessLabel.setText(Integer.toString(shownCrew.getFitness()));
+			GenerationLabel.setText(Integer.toString(shownCrew.getGeneration()));
 		}
 
 	}

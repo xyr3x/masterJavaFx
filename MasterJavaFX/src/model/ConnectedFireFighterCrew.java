@@ -19,6 +19,7 @@ public class ConnectedFireFighterCrew implements Comparable<ConnectedFireFighter
 	private int maxNonBurningVertices;
 	private List<ConnectedFireFighter> crew = new ArrayList<ConnectedFireFighter>();
 	private int bestTimeStep;
+	private int generation;
 	private boolean changed = false;
 	private boolean newCrew = false;
 	//save the defended vertices of all timesteps
@@ -120,6 +121,14 @@ public class ConnectedFireFighterCrew implements Comparable<ConnectedFireFighter
 
 	public void setMaxNonBurningVertices(int maxNonBurningVertices) {
 		this.maxNonBurningVertices = maxNonBurningVertices;
+	}
+	
+	public int getGeneration() {
+		return generation;
+	}
+
+	public void setGeneration(int generation) {
+		this.generation = generation;
 	}
 
 	// shifts for the grid
